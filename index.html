@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Transferencias</title>
+  <title>CONTROL DE TRANSFERENCIAS BANCARIAS</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #0f0f0f;
@@ -22,6 +26,8 @@
       font-weight: bold;
       border-bottom: 1px solid #333;
       position: relative;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .top-right {
@@ -86,6 +92,7 @@
 
     input, select, textarea {
       width: 100%;
+      max-width: 100%;
       padding: 10px;
       border-radius: 10px;
       border: 1px solid #444;
@@ -93,17 +100,24 @@
       background: #222;
       color: #fff;
       outline: none;
+      display: block;
     }
 
     textarea {
-      min-height: 95px;
+      min-height: 72px;
+      max-height: 120px;
       resize: vertical;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 45px;
+      align-items: start;
+    }
+
+    .grid > div {
+      min-width: 0;
     }
 
     @media (max-width: 700px) {
@@ -188,9 +202,17 @@
     }
 
     th {
-      background: #222;
+      background: #202020;
       font-size: 12px;
       color: #ccc;
+    }
+
+    tbody tr {
+      transition: background-color 0.18s ease;
+    }
+
+    tbody tr:hover {
+      background: #1b1b1b;
     }
 
     .status-aplicada {
@@ -275,13 +297,19 @@
       flex-wrap: wrap;
       gap: 6px;
     }
+
+    .welcome-note {
+      font-size: 12px;
+      color: #9a9a9a;
+      margin-top: 8px;
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  Control de Transferencias Bancarias
+  CONTROL DE TRANSFERENCIAS BANCARIAS
   <div class="top-right" id="topRight" style="display:none;">
     <span id="userInfo"></span>
     <button class="btn-logout" onclick="logout()">Salir</button>
@@ -292,11 +320,16 @@
 
   <div class="card" id="loginCard">
     <h3>Iniciar Sesión</h3>
+
     <label>Correo</label>
     <input type="email" id="email" placeholder="Correo">
 
     <label>Contraseña</label>
     <input type="password" id="password" placeholder="Contraseña">
+
+    <div class="welcome-note">
+      Después de iniciar sesión, se te pedirá un nombre de usuario simbólico para mostrarlo arriba.
+    </div>
 
     <button class="btn-guardar" onclick="login()">Ingresar</button>
   </div>
@@ -376,7 +409,6 @@
 
 </div>
 
-
 <div class="modal" id="modalEditar">
   <div class="modal-content">
 
@@ -429,7 +461,6 @@
   </div>
 </div>
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -463,6 +494,27 @@
     document.getElementById("comentarios").value = "";
   }
 
+  function formatearFecha(fecha) {
+    if (!fecha || fecha === "No aplica") return "No aplica";
+    const partes = fecha.split("-");
+    if (partes.length !== 3) return fecha;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  function obtenerNombreUsuario() {
+    let nombre = localStorage.getItem("nombreUsuarioSimbolico");
+    while (!nombre || !nombre.trim()) {
+      nombre = prompt("Ingresa un nombre de usuario para mostrar en pantalla:");
+      if (nombre === null) {
+        nombre = "Usuario";
+        break;
+      }
+      nombre = nombre.trim();
+    }
+    localStorage.setItem("nombreUsuarioSimbolico", nombre);
+    return nombre;
+  }
+
   async function cargarTransferencias() {
     transferencias = [];
     const querySnapshot = await getDocs(collection(db, "transferencias"));
@@ -471,7 +523,6 @@
       transferencias.push({ id: docu.id, ...docu.data() });
     });
 
-    // ORDENAR DEL MÁS ANTIGUO AL MÁS RECIENTE
     transferencias.sort((a, b) => {
       const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
       const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
@@ -503,10 +554,11 @@
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      const nombreUsuario = obtenerNombreUsuario();
       document.getElementById("loginCard").style.display = "none";
       document.getElementById("panel").style.display = "block";
       document.getElementById("topRight").style.display = "flex";
-      document.getElementById("userInfo").innerText = user.email;
+      document.getElementById("userInfo").innerText = nombreUsuario;
       cargarTransferencias();
     } else {
       document.getElementById("loginCard").style.display = "block";
@@ -530,14 +582,14 @@
 
     try {
       await addDoc(collection(db, "transferencias"), {
-        cliente: cliente,
+        cliente,
         monto: montoFinal,
-        fecha: fecha,
-        estado: estado,
-        recibo: recibo,
-        fechaRecibo: fechaRecibo,
-        banco: banco,
-        comentarios: comentarios
+        fecha,
+        estado,
+        recibo,
+        fechaRecibo,
+        banco,
+        comentarios
       });
 
       limpiarFormulario();
@@ -583,7 +635,6 @@
     document.getElementById("editMonto").value = t.monto || 0;
     document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
     document.getElementById("editEstado").value = t.estado || "Pendiente";
-
     document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
     document.getElementById("editFechaRecibo").value = t.fechaRecibo === "No aplica" ? "" : (t.fechaRecibo || "");
     document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
@@ -604,7 +655,6 @@
     const monto = document.getElementById("editMonto").value.trim();
     const fecha = document.getElementById("editFecha").value || "No aplica";
     const estado = document.getElementById("editEstado").value || "No aplica";
-
     const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
     const fechaRecibo = document.getElementById("editFechaRecibo").value || "No aplica";
     const banco = document.getElementById("editBanco").value.trim() || "No aplica";
@@ -614,14 +664,14 @@
 
     try {
       await updateDoc(doc(db, "transferencias", idEditando), {
-        cliente: cliente,
+        cliente,
         monto: montoFinal,
-        fecha: fecha,
-        estado: estado,
-        recibo: recibo,
-        fechaRecibo: fechaRecibo,
-        banco: banco,
-        comentarios: comentarios
+        fecha,
+        estado,
+        recibo,
+        fechaRecibo,
+        banco,
+        comentarios
       });
 
       cerrarModal();
@@ -646,7 +696,6 @@
         (t.monto + "").includes(filtro)
       )
       .forEach((t) => {
-
         let estadoClass = "status-pendiente";
         if (t.estado === "Aplicada") estadoClass = "status-aplicada";
         if (t.estado === "No aplica") estadoClass = "status-noaplica";
@@ -655,10 +704,10 @@
           <tr>
             <td>${t.cliente || "No aplica"}</td>
             <td>$${Number(t.monto || 0).toFixed(2)}</td>
-            <td>${t.fecha || "No aplica"}</td>
+            <td>${formatearFecha(t.fecha)}</td>
             <td class="${estadoClass}">${t.estado || "No aplica"}</td>
             <td>${t.recibo || "No aplica"}</td>
-            <td>${t.fechaRecibo || "No aplica"}</td>
+            <td>${formatearFecha(t.fechaRecibo)}</td>
             <td>${t.banco || "No aplica"}</td>
             <td>${t.comentarios || "No aplica"}</td>
             <td>
