@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Transferencias</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #161616;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #161616;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      margin-bottom: 15px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+    }
+
+    input, select {
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    button {
+      background: #1e88e5;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    .btn-danger {
+      background: #e53935;
+    }
+
+    .btn-danger:hover {
+      background: #b71c1c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #222;
+    }
+
+    .status-aplicada {
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .status-pendiente {
+      color: #ffb300;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .user-info {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>Control de Transferencias Bancarias</header>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <h3>Iniciar Sesión</h3>
+    <input type="email" id="email" placeholder="Correo">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="panel" style="display:none;">
+
+    <div class="card">
+      <h3>Registrar nueva transferencia</h3>
+
+      <div class="grid">
+        <div>
+          <label>Referencia</label>
+          <input type="text" id="ref" placeholder="Ej: BAC-2026-0001">
+        </div>
+
+        <div>
+          <label>Cliente</label>
+          <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
+        </div>
+
+        <div>
+          <label>Monto ($)</label>
+          <input type="number" id="monto" placeholder="Ej: 50.00">
+        </div>
+
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+
+        <div>
+          <label>Banco</label>
+          <input type="text" id="banco" placeholder="Ej: BAC">
+        </div>
+
+        <div>
+          <label>Estado</label>
+          <select id="estado">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Aplicada">Aplicada</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="guardarTransferencia()">Guardar Transferencia</button>
+    </div>
+
+    <div class="card">
+      <h3>Buscar transferencias</h3>
+      <input type="text" id="buscar" placeholder="Buscar por referencia, cliente o banco..." onkeyup="renderTabla()">
+
+      <div class="user-info" id="userInfo"></div>
+
+      <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+    </div>
+
+    <div class="card">
+      <h3>Listado</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Referencia</th>
+            <th>Cliente</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Banco</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="tablaBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // CONFIGURACIÓN REAL DE TU FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyDybO0X16acq4jlaOCJ2gPKs21L-zLXVbA",
+    authDomain: "trasnfercontrol.firebaseapp.com",
+    projectId: "trasnfercontrol",
+    storageBucket: "trasnfercontrol.firebasestorage.app",
+    messagingSenderId: "125048313931",
+    appId: "1:125048313931:web:2b3e1609ba97057a1e15ce",
+    measurementId: "G-Z4PYH91QJV"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let transferencias = [];
+
+  function limpiarFormulario() {
+    document.getElementById("ref").value = "";
+    document.getElementById("cliente").value = "";
+    document.getElementById("monto").value = "";
+    document.getElementById("fecha").value = "";
+    document.getElementById("banco").value = "";
+    document.getElementById("estado").value = "Pendiente";
+  }
+
+  async function cargarTransferencias() {
+    transferencias = [];
+    const querySnapshot = await getDocs(collection(db, "transferencias"));
+
+    querySnapshot.forEach((docu) => {
+      transferencias.push({ id: docu.id, ...docu.data() });
+    });
+
+    renderTabla();
+  }
+
+  // LOGIN
+  window.login = async function() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      alert("Ingresa correo y contraseña.");
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      alert("Error de login: " + error.message);
+    }
+  };
+
+  // LOGOUT
+  window.logout = async function() {
+    await signOut(auth);
+  };
+
+  // ESTADO DE SESIÓN
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById("loginCard").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      document.getElementById("userInfo").innerText = "Sesión activa: " + user.email;
+      cargarTransferencias();
+    } else {
+      document.getElementById("loginCard").style.display = "block";
+      document.getElementById("panel").style.display = "none";
+      document.getElementById("userInfo").innerText = "";
+    }
+  });
+
+  // GUARDAR NUEVA TRANSFERENCIA
+  window.guardarTransferencia = async function() {
+    const ref = document.getElementById("ref").value.trim();
+    const cliente = document.getElementById("cliente").value.trim();
+    const monto = document.getElementById("monto").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const banco = document.getElementById("banco").value.trim();
+    const estado = document.getElementById("estado").value;
+
+    if (!ref || !cliente || !monto || !fecha || !banco) {
+      alert("Completa todos los campos.");
+      return;
+    }
+
+    // EVITAR DUPLICADOS POR REFERENCIA
+    const existe = transferencias.find(t => t.referencia?.toLowerCase() === ref.toLowerCase());
+    if (existe) {
+      alert("⚠️ Ya existe una transferencia con esa referencia. Revisa antes de duplicar.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "transferencias"), {
+        referencia: ref,
+        cliente: cliente,
+        monto: parseFloat(monto),
+        fecha: fecha,
+        banco: banco,
+        estado: estado
+      });
+
+      limpiarFormulario();
+      cargarTransferencias();
+    } catch (error) {
+      alert("Error al guardar: " + error.message);
+    }
+  };
+
+  // CAMBIAR ESTADO
+  window.cambiarEstado = async function(id, estadoActual) {
+    const nuevoEstado = estadoActual === "Pendiente" ? "Aplicada" : "Pendiente";
+
+    try {
+      await updateDoc(doc(db, "transferencias", id), { estado: nuevoEstado });
+      cargarTransferencias();
+    } catch (error) {
+      alert("Error al actualizar: " + error.message);
+    }
+  };
+
+  // ELIMINAR TRANSFERENCIA
+  window.eliminarTransferencia = async function(id) {
+    if (!confirm("¿Eliminar esta transferencia?")) return;
+
+    try {
+      await deleteDoc(doc(db, "transferencias", id));
+      cargarTransferencias();
+    } catch (error) {
+      alert("Error al eliminar: " + error.message);
+    }
+  };
+
+  // RENDER TABLA CON FILTRO
+  window.renderTabla = function() {
+    const filtro = document.getElementById("buscar").value.toLowerCase();
+    const tbody = document.getElementById("tablaBody");
+    tbody.innerHTML = "";
+
+    transferencias
+      .filter(t =>
+        t.referencia?.toLowerCase().includes(filtro) ||
+        t.cliente?.toLowerCase().includes(filtro) ||
+        t.banco?.toLowerCase().includes(filtro) ||
+        (t.monto + "").includes(filtro)
+      )
+      .forEach((t) => {
+        const estadoClass = t.estado === "Aplicada" ? "status-aplicada" : "status-pendiente";
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${t.referencia}</td>
+            <td>${t.cliente}</td>
+            <td>$${Number(t.monto).toFixed(2)}</td>
+            <td>${t.fecha}</td>
+            <td>${t.banco}</td>
+            <td class="${estadoClass}">${t.estado}</td>
+            <td>
+              <button onclick="cambiarEstado('${t.id}', '${t.estado}')">Cambiar</button>
+              <button class="btn-danger" onclick="eliminarTransferencia('${t.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+  };
+
+</script>
+
+</body>
+</html>
