@@ -9,7 +9,7 @@
     * {
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: Arial, sans-serif;
       background: #0f0f0f;
@@ -39,13 +39,52 @@
       gap: 10px;
     }
 
-    .top-right span {
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid rgba(255,255,255,0.1);
+      user-select: none;
+      cursor: default;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.20);
+    }
+
+    .btn-logout {
+      background: #e53935;
+      padding: 6px 12px;
       font-size: 12px;
-      color: #aaa;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      border-radius: 8px;
+      width: auto;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-logout:hover {
+      background: #b71c1c;
+    }
+
+    .btn-secondary {
+      background: #2a2a2a;
+      color: #f2f2f2;
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+      border: 1px solid #444;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-secondary:hover {
+      background: #333;
     }
 
     .container {
@@ -150,19 +189,6 @@
       background: #4210b4;
     }
 
-    .btn-logout {
-      background: #e53935;
-      padding: 6px 12px;
-      font-size: 12px;
-      border-radius: 8px;
-      width: auto;
-      color: white;
-    }
-
-    .btn-logout:hover {
-      background: #b71c1c;
-    }
-
     .btn-danger {
       background: #e53935;
       color: white;
@@ -203,20 +229,6 @@
       background: #e9e9e9;
     }
 
-    .btn-secondary {
-      background: #2a2a2a;
-      color: #f2f2f2;
-      padding: 8px 12px;
-      font-size: 12px;
-      width: auto;
-      border: 1px solid #444;
-      border-radius: 8px;
-    }
-
-    .btn-secondary:hover {
-      background: #333;
-    }
-
     .btn-filter {
       background: #242424;
       color: #ddd;
@@ -225,6 +237,8 @@
       border: 1px solid #3a3a3a;
       width: auto;
       border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     .btn-filter:hover {
@@ -373,19 +387,20 @@
 
     .toast {
       position: fixed;
-      right: 18px;
-      bottom: 18px;
+      top: 14px;
+      left: 14px;
       z-index: 1000;
-      min-width: 240px;
-      max-width: 360px;
+      min-width: 180px;
+      max-width: 260px;
       background: #1d1d1d;
       color: #fff;
       border: 1px solid #333;
       border-left: 4px solid #5416DB;
-      border-radius: 10px;
-      padding: 12px 14px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
       display: none;
+      font-size: 12px;
     }
 
     .toast.success {
@@ -462,32 +477,30 @@
       margin-top: 20px;
       flex-wrap: wrap;
     }
+
     .firma-ac3 {
-  position: fixed;
-  bottom: 15px;
-  right: 18px;
-  background: #5416DB;
-  color: white;
-  padding: 7px 12px;
-  font-size: 11px;
-  font-weight: bold;
-  font-style: italic;
-  text-decoration: underline;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  z-index: 999;
-  user-select: none;
-  cursor: default;
-  transition: 0.2s ease;
-}
+      position: fixed;
+      bottom: 15px;
+      right: 18px;
+      background: #5416DB;
+      color: white;
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      font-style: italic;
+      text-decoration: underline;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      z-index: 999;
+      user-select: none;
+      cursor: default;
+      transition: 0.2s ease;
+    }
 
-.firma-ac3:hover {
-  background: #4210b4;
-  transform: translateY(-1px);
-}
-
-
-    
+    .firma-ac3:hover {
+      background: #4210b4;
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 
@@ -495,7 +508,7 @@
   <header>
     CONTROL DE TRANSFERENCIAS BANCARIAS
     <div class="top-right" id="topRight" style="display:none;">
-      <span id="userInfo"></span>
+      <div id="userAvatar" class="user-avatar" title="Usuario"></div>
       <button class="btn-secondary" onclick="crearRespaldo()">Crear respaldo</button>
       <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
@@ -665,6 +678,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <div class="firma-ac3">DESIGNED BY AC3</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -699,7 +713,7 @@
       clearTimeout(window.toastTimeout);
       window.toastTimeout = setTimeout(() => {
         toast.style.display = "none";
-      }, 2800);
+      }, 1800);
     }
 
     function formatearFecha(fecha) {
@@ -721,6 +735,51 @@
       }
       localStorage.setItem("nombreUsuarioSimbolico", nombre);
       return nombre;
+    }
+
+    function obtenerEstiloAvatar(nombre) {
+      const inicial = (nombre?.trim()?.charAt(0) || "U").toUpperCase();
+
+      if (inicial === "A") {
+        return {
+          inicial,
+          background: "#ffffff",
+          color: "#5416DB"
+        };
+      }
+
+      let suma = 0;
+      for (let i = 0; i < nombre.length; i++) {
+        suma += nombre.charCodeAt(i);
+      }
+
+      const tonos = [
+        { background: "#2D1B69", color: "#E7DDFF" },
+        { background: "#163A5F", color: "#D8EEFF" },
+        { background: "#3A2E25", color: "#FFE6CC" },
+        { background: "#1F3D2B", color: "#D8FFE8" },
+        { background: "#4A2230", color: "#FFD9E2" },
+        { background: "#2B2F4A", color: "#E0E5FF" }
+      ];
+
+      const elegido = tonos[suma % tonos.length];
+
+      return {
+        inicial,
+        background: elegido.background,
+        color: elegido.color
+      };
+    }
+
+    function actualizarAvatar(nombre) {
+      const avatar = document.getElementById("userAvatar");
+      const estilo = obtenerEstiloAvatar(nombre);
+
+      avatar.textContent = estilo.inicial;
+      avatar.style.background = estilo.background;
+      avatar.style.color = estilo.color;
+      avatar.title = nombre;
+      avatar.setAttribute("aria-label", nombre);
     }
 
     function actualizarDashboard() {
@@ -844,7 +903,7 @@
           datos: datosRespaldo
         });
 
-        showToast("Respaldo creado correctamente en Firebase.", "success");
+        showToast("Respaldo creado correctamente.", "success");
       } catch (error) {
         showToast("Error al crear respaldo: " + error.message, "error");
       }
@@ -853,16 +912,15 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const nombreUsuario = obtenerNombreUsuario();
+        actualizarAvatar(nombreUsuario);
         document.getElementById("loginCard").style.display = "none";
         document.getElementById("panel").style.display = "block";
         document.getElementById("topRight").style.display = "flex";
-        document.getElementById("userInfo").innerText = nombreUsuario;
         cargarTransferencias();
       } else {
         document.getElementById("loginCard").style.display = "block";
         document.getElementById("panel").style.display = "none";
         document.getElementById("topRight").style.display = "none";
-        document.getElementById("userInfo").innerText = "";
       }
     });
 
@@ -894,7 +952,7 @@
 
         limpiarFormulario();
         await cargarTransferencias();
-        showToast("Transferencia guardada correctamente.", "success");
+        showToast("Transferencia guardada.", "success");
       } catch (error) {
         showToast("Error al guardar: " + error.message, "error");
       }
@@ -906,7 +964,7 @@
       try {
         await updateDoc(doc(db, "transferencias", id), { estado: nuevoEstado });
         await cargarTransferencias();
-        showToast("Estado actualizado correctamente.", "success");
+        showToast("Estado actualizado.", "success");
       } catch (error) {
         showToast("Error al actualizar: " + error.message, "error");
       }
@@ -978,7 +1036,7 @@
 
         cerrarModal();
         await cargarTransferencias();
-        showToast("Registro actualizado correctamente.", "success");
+        showToast("Registro actualizado.", "success");
       } catch (error) {
         showToast("Error al guardar cambios: " + error.message, "error");
       }
@@ -1043,6 +1101,5 @@
       });
     };
   </script>
-  <div class="firma-ac3">DESIGNED BY AC3</div>
 </body>
 </html>
