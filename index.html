@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CONTROL DE TRANSFERENCIAS BANCARIAS</title>
 
   <style>
@@ -42,30 +42,14 @@
     .top-right span {
       font-size: 12px;
       color: #aaa;
-      max-width: 220px;
+      max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .btn-logout {
-      background: #e53935;
-      padding: 6px 12px;
-      font-size: 12px;
-      border-radius: 8px;
-      width: auto;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      color: white;
-    }
-
-    .btn-logout:hover {
-      background: #b71c1c;
-    }
-
     .container {
-      max-width: 1150px;
+      max-width: 1180px;
       margin: auto;
       padding: 20px;
     }
@@ -76,10 +60,12 @@
       border-radius: 12px;
       border: 1px solid #333;
       margin-bottom: 20px;
+      overflow: hidden;
     }
 
     h3 {
       margin-top: 0;
+      margin-bottom: 14px;
     }
 
     label {
@@ -103,8 +89,13 @@
       display: block;
     }
 
+    input:focus, select:focus, textarea:focus {
+      border-color: #6f46ff;
+      box-shadow: 0 0 0 2px rgba(84, 22, 219, 0.16);
+    }
+
     textarea {
-      min-height: 72px;
+      min-height: 68px;
       max-height: 120px;
       resize: vertical;
     }
@@ -120,10 +111,20 @@
       min-width: 0;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 800px) {
       .grid {
         grid-template-columns: 1fr;
         gap: 25px;
+      }
+
+      .top-right {
+        position: static;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      header {
+        padding-bottom: 12px;
       }
     }
 
@@ -132,6 +133,7 @@
       cursor: pointer;
       font-weight: bold;
       border-radius: 10px;
+      transition: 0.18s ease;
     }
 
     .btn-guardar {
@@ -145,7 +147,20 @@
     }
 
     .btn-guardar:hover {
-      background: #3f10aa;
+      background: #4210b4;
+    }
+
+    .btn-logout {
+      background: #e53935;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      width: auto;
+      color: white;
+    }
+
+    .btn-logout:hover {
+      background: #b71c1c;
     }
 
     .btn-danger {
@@ -181,16 +196,111 @@
       font-size: 12px;
       width: auto;
       border-radius: 8px;
+      border: 1px solid #d0d0d0;
     }
 
     .btn-estado:hover {
-      background: #d6d6d6;
+      background: #e9e9e9;
+    }
+
+    .btn-secondary {
+      background: #2a2a2a;
+      color: #f2f2f2;
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+      border: 1px solid #444;
+      border-radius: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #333;
+    }
+
+    .btn-filter {
+      background: #242424;
+      color: #ddd;
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid #3a3a3a;
+      width: auto;
+      border-radius: 999px;
+    }
+
+    .btn-filter:hover {
+      background: #303030;
+    }
+
+    .btn-filter.active {
+      background: #5416DB;
+      border-color: #5416DB;
+      color: #fff;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      width: 290px;
+      max-width: 100%;
+      margin: 0;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .dash-card {
+      background: #1c1c1c;
+      border: 1px solid #313131;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .dash-label {
+      font-size: 12px;
+      color: #9e9e9e;
+      margin-bottom: 6px;
+    }
+
+    .dash-value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 500px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
+      margin-top: 10px;
       font-size: 13px;
     }
 
@@ -205,6 +315,13 @@
       background: #202020;
       font-size: 12px;
       color: #ccc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #141414;
     }
 
     tbody tr {
@@ -212,22 +329,75 @@
     }
 
     tbody tr:hover {
-      background: #1b1b1b;
+      background: #1d1d1d;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 1;
     }
 
     .status-aplicada {
-      color: #4caf50;
-      font-weight: bold;
+      background: rgba(76, 175, 80, 0.16);
+      color: #72d876;
+      border: 1px solid rgba(76, 175, 80, 0.35);
     }
 
     .status-pendiente {
-      color: #ffb300;
-      font-weight: bold;
+      background: rgba(255, 179, 0, 0.14);
+      color: #ffca4d;
+      border: 1px solid rgba(255, 179, 0, 0.35);
     }
 
-    .status-noaplica {
-      color: #9e9e9e;
-      font-weight: bold;
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .obs-cell {
+      max-width: 220px;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .welcome-note {
+      font-size: 12px;
+      color: #9a9a9a;
+      margin-top: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1000;
+      min-width: 240px;
+      max-width: 360px;
+      background: #1d1d1d;
+      color: #fff;
+      border: 1px solid #333;
+      border-left: 4px solid #5416DB;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: none;
+    }
+
+    .toast.success {
+      border-left-color: #4caf50;
+    }
+
+    .toast.error {
+      border-left-color: #e53935;
+    }
+
+    .toast.warn {
+      border-left-color: #ffb300;
     }
 
     .modal {
@@ -290,69 +460,157 @@
       display: flex;
       gap: 12px;
       margin-top: 20px;
-    }
-
-    .table-actions {
-      display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .welcome-note {
-      font-size: 12px;
-      color: #9a9a9a;
-      margin-top: 8px;
     }
   </style>
 </head>
 
 <body>
+  <header>
+    CONTROL DE TRANSFERENCIAS BANCARIAS
+    <div class="top-right" id="topRight" style="display:none;">
+      <span id="userInfo"></span>
+      <button class="btn-secondary" onclick="crearRespaldo()">Crear respaldo</button>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </header>
 
-<header>
-  CONTROL DE TRANSFERENCIAS BANCARIAS
-  <div class="top-right" id="topRight" style="display:none;">
-    <span id="userInfo"></span>
-    <button class="btn-logout" onclick="logout()">Salir</button>
-  </div>
-</header>
+  <div class="container">
+    <div class="card" id="loginCard">
+      <h3>Iniciar Sesión</h3>
 
-<div class="container">
+      <label>Correo</label>
+      <input type="email" id="email" placeholder="Correo">
 
-  <div class="card" id="loginCard">
-    <h3>Iniciar Sesión</h3>
+      <label>Contraseña</label>
+      <input type="password" id="password" placeholder="Contraseña">
 
-    <label>Correo</label>
-    <input type="email" id="email" placeholder="Correo">
+      <div class="welcome-note">
+        Después de iniciar sesión, se te pedirá un nombre simbólico para mostrarlo arriba.
+      </div>
 
-    <label>Contraseña</label>
-    <input type="password" id="password" placeholder="Contraseña">
-
-    <div class="welcome-note">
-      Después de iniciar sesión, se te pedirá un nombre de usuario simbólico para mostrarlo arriba.
+      <button class="btn-guardar" onclick="login()">Ingresar</button>
     </div>
 
-    <button class="btn-guardar" onclick="login()">Ingresar</button>
+    <div id="panel" style="display:none;">
+      <div class="dashboard">
+        <div class="dash-card">
+          <div class="dash-label">Total registros</div>
+          <div class="dash-value" id="dashTotal">0</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-label">Pendientes</div>
+          <div class="dash-value" id="dashPendientes">0</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-label">Aplicadas</div>
+          <div class="dash-value" id="dashAplicadas">0</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-label">Monto total registrado</div>
+          <div class="dash-value" id="dashMonto">$0.00</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Registrar nueva transferencia</h3>
+
+        <div class="grid">
+          <div>
+            <label>Cliente</label>
+            <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
+
+            <label>Monto ($)</label>
+            <input type="number" id="monto" placeholder="Ej: 50.00" min="0" step="0.01">
+
+            <label>Fecha recibida</label>
+            <input type="date" id="fecha">
+
+            <label>Estado</label>
+            <select id="estado">
+              <option value="Pendiente">Pendiente</option>
+              <option value="Aplicada">Aplicada</option>
+            </select>
+          </div>
+
+          <div>
+            <label>N° Recibo</label>
+            <input type="text" id="recibo" placeholder="Ej: R-000123">
+
+            <label>Fecha recibo</label>
+            <input type="date" id="fechaRecibo">
+
+            <label>ID o Banco</label>
+            <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno">
+
+            <label>Observaciones / Comentarios</label>
+            <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc."></textarea>
+          </div>
+        </div>
+
+        <button class="btn-guardar" onclick="guardarTransferencia()">Guardar Transferencia</button>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <h3 style="margin:0;">Listado</h3>
+            <button class="btn-filter active" id="filtroTodas" onclick="setFiltroEstado('Todas')">Todas</button>
+            <button class="btn-filter" id="filtroPendiente" onclick="setFiltroEstado('Pendiente')">Pendientes</button>
+            <button class="btn-filter" id="filtroAplicada" onclick="setFiltroEstado('Aplicada')">Aplicadas</button>
+          </div>
+
+          <div class="toolbar-right">
+            <input
+              type="text"
+              id="buscar"
+              class="search-input"
+              placeholder="Buscar por cliente, banco, recibo, estado o monto..."
+              onkeyup="renderTabla()"
+            >
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Monto</th>
+              <th>Fecha Recibida</th>
+              <th>Estado</th>
+              <th>N° Recibo</th>
+              <th>Fecha Recibo</th>
+              <th>ID / Banco</th>
+              <th>Observaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div id="panel" style="display:none;">
-
-    <div class="card">
-      <h3>Registrar nueva transferencia</h3>
+  <div class="modal" id="modalEditar">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Editar Transferencia</h3>
+        <button class="close-btn" onclick="cerrarModal()">✖</button>
+      </div>
 
       <div class="grid">
-
         <div>
           <label>Cliente</label>
-          <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
+          <input type="text" id="editCliente">
 
           <label>Monto ($)</label>
-          <input type="number" id="monto" placeholder="Ej: 50.00">
+          <input type="number" id="editMonto" min="0" step="0.01">
 
           <label>Fecha recibida</label>
-          <input type="date" id="fecha">
+          <input type="date" id="editFecha">
 
           <label>Estado</label>
-          <select id="estado">
+          <select id="editEstado">
             <option value="Pendiente">Pendiente</option>
             <option value="Aplicada">Aplicada</option>
           </select>
@@ -360,355 +618,393 @@
 
         <div>
           <label>N° Recibo</label>
-          <input type="text" id="recibo" placeholder="Ej: R-000123">
+          <input type="text" id="editRecibo">
 
           <label>Fecha recibo</label>
-          <input type="date" id="fechaRecibo">
+          <input type="date" id="editFechaRecibo">
 
           <label>ID o Banco</label>
-          <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno">
+          <input type="text" id="editBanco">
 
           <label>Observaciones / Comentarios</label>
-          <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc."></textarea>
+          <textarea id="editComentarios"></textarea>
         </div>
-
       </div>
 
-      <button class="btn-guardar" onclick="guardarTransferencia()">Guardar Transferencia</button>
+      <div class="actions-row">
+        <button class="btn-guardar" onclick="guardarCambios()">Guardar Cambios</button>
+        <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      </div>
     </div>
-
-    <div class="card">
-      <h3>Buscar transferencias</h3>
-      <input type="text" id="buscar" placeholder="Buscar por cliente, banco, recibo, estado o monto..." onkeyup="renderTabla()">
-    </div>
-
-    <div class="card">
-      <h3>Listado</h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Monto</th>
-            <th>Fecha Recibida</th>
-            <th>Estado</th>
-            <th>N° Recibo</th>
-            <th>Fecha Recibo</th>
-            <th>ID / Banco</th>
-            <th>Observaciones</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody id="tablaBody"></tbody>
-      </table>
-    </div>
-
   </div>
 
-</div>
+  <div class="toast" id="toast"></div>
 
-<div class="modal" id="modalEditar">
-  <div class="modal-content">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    <div class="modal-header">
-      <h3>Editar Transferencia</h3>
-      <button class="close-btn" onclick="cerrarModal()">✖</button>
-    </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDybO0X16acq4jlaOCJ2gPKs21L-zLXVbA",
+      authDomain: "trasnfercontrol.firebaseapp.com",
+      projectId: "trasnfercontrol",
+      storageBucket: "trasnfercontrol.firebasestorage.app",
+      messagingSenderId: "125048313931",
+      appId: "1:125048313931:web:2b3e1609ba97057a1e15ce",
+      measurementId: "G-Z4PYH91QJV"
+    };
 
-    <div class="grid">
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      <div>
-        <label>Cliente</label>
-        <input type="text" id="editCliente">
+    let transferencias = [];
+    let idEditando = null;
+    let filtroEstadoActual = "Todas";
 
-        <label>Monto ($)</label>
-        <input type="number" id="editMonto">
+    function showToast(message, type = "") {
+      const toast = document.getElementById("toast");
+      toast.className = "toast";
+      if (type) toast.classList.add(type);
+      toast.textContent = message;
+      toast.style.display = "block";
 
-        <label>Fecha recibida</label>
-        <input type="date" id="editFecha">
+      clearTimeout(window.toastTimeout);
+      window.toastTimeout = setTimeout(() => {
+        toast.style.display = "none";
+      }, 2800);
+    }
 
-        <label>Estado</label>
-        <select id="editEstado">
-          <option value="Pendiente">Pendiente</option>
-          <option value="Aplicada">Aplicada</option>
-          <option value="No aplica">No aplica</option>
-        </select>
-      </div>
+    function formatearFecha(fecha) {
+      if (!fecha || fecha === "No aplica") return "No aplica";
+      const partes = fecha.split("-");
+      if (partes.length !== 3) return fecha;
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
 
-      <div>
-        <label>N° Recibo</label>
-        <input type="text" id="editRecibo">
-
-        <label>Fecha recibo</label>
-        <input type="date" id="editFechaRecibo">
-
-        <label>ID o Banco</label>
-        <input type="text" id="editBanco">
-
-        <label>Observaciones / Comentarios</label>
-        <textarea id="editComentarios"></textarea>
-      </div>
-
-    </div>
-
-    <div class="actions-row">
-      <button class="btn-guardar" onclick="guardarCambios()">Guardar Cambios</button>
-      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
-    </div>
-
-  </div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDybO0X16acq4jlaOCJ2gPKs21L-zLXVbA",
-    authDomain: "trasnfercontrol.firebaseapp.com",
-    projectId: "trasnfercontrol",
-    storageBucket: "trasnfercontrol.firebasestorage.app",
-    messagingSenderId: "125048313931",
-    appId: "1:125048313931:web:2b3e1609ba97057a1e15ce",
-    measurementId: "G-Z4PYH91QJV"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  let transferencias = [];
-  let idEditando = null;
-
-  function limpiarFormulario() {
-    document.getElementById("cliente").value = "";
-    document.getElementById("monto").value = "";
-    document.getElementById("fecha").value = "";
-    document.getElementById("estado").value = "Pendiente";
-    document.getElementById("recibo").value = "";
-    document.getElementById("fechaRecibo").value = "";
-    document.getElementById("banco").value = "";
-    document.getElementById("comentarios").value = "";
-  }
-
-  function formatearFecha(fecha) {
-    if (!fecha || fecha === "No aplica") return "No aplica";
-    const partes = fecha.split("-");
-    if (partes.length !== 3) return fecha;
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-  }
-
-  function obtenerNombreUsuario() {
-    let nombre = localStorage.getItem("nombreUsuarioSimbolico");
-    while (!nombre || !nombre.trim()) {
-      nombre = prompt("Ingresa un nombre de usuario para mostrar en pantalla:");
-      if (nombre === null) {
-        nombre = "Usuario";
-        break;
+    function obtenerNombreUsuario() {
+      let nombre = localStorage.getItem("nombreUsuarioSimbolico");
+      while (!nombre || !nombre.trim()) {
+        nombre = prompt("Ingresa un nombre de usuario para mostrar en pantalla:");
+        if (nombre === null) {
+          nombre = "Usuario";
+          break;
+        }
+        nombre = nombre.trim();
       }
-      nombre = nombre.trim();
-    }
-    localStorage.setItem("nombreUsuarioSimbolico", nombre);
-    return nombre;
-  }
-
-  async function cargarTransferencias() {
-    transferencias = [];
-    const querySnapshot = await getDocs(collection(db, "transferencias"));
-
-    querySnapshot.forEach((docu) => {
-      transferencias.push({ id: docu.id, ...docu.data() });
-    });
-
-    transferencias.sort((a, b) => {
-      const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
-      const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
-      return fechaA.localeCompare(fechaB);
-    });
-
-    renderTabla();
-  }
-
-  window.login = async function() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (!email || !password) {
-      alert("Ingresa correo y contraseña.");
-      return;
+      localStorage.setItem("nombreUsuarioSimbolico", nombre);
+      return nombre;
     }
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert("Error de login: " + error.message);
+    function actualizarDashboard() {
+      const total = transferencias.length;
+      const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
+      const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
+      const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+
+      document.getElementById("dashTotal").textContent = total;
+      document.getElementById("dashPendientes").textContent = pendientes;
+      document.getElementById("dashAplicadas").textContent = aplicadas;
+      document.getElementById("dashMonto").textContent = `$${montoTotal.toFixed(2)}`;
     }
-  };
 
-  window.logout = async function() {
-    await signOut(auth);
-  };
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const nombreUsuario = obtenerNombreUsuario();
-      document.getElementById("loginCard").style.display = "none";
-      document.getElementById("panel").style.display = "block";
-      document.getElementById("topRight").style.display = "flex";
-      document.getElementById("userInfo").innerText = nombreUsuario;
-      cargarTransferencias();
-    } else {
-      document.getElementById("loginCard").style.display = "block";
-      document.getElementById("panel").style.display = "none";
-      document.getElementById("topRight").style.display = "none";
-      document.getElementById("userInfo").innerText = "";
+    function limpiarFormulario() {
+      document.getElementById("cliente").value = "";
+      document.getElementById("monto").value = "";
+      document.getElementById("fecha").value = "";
+      document.getElementById("estado").value = "Pendiente";
+      document.getElementById("recibo").value = "";
+      document.getElementById("fechaRecibo").value = "";
+      document.getElementById("banco").value = "";
+      document.getElementById("comentarios").value = "";
     }
-  });
 
-  window.guardarTransferencia = async function() {
-    const cliente = document.getElementById("cliente").value.trim() || "No aplica";
-    const monto = document.getElementById("monto").value.trim();
-    const fecha = document.getElementById("fecha").value || "No aplica";
-    const estado = document.getElementById("estado").value || "No aplica";
-    const recibo = document.getElementById("recibo").value.trim() || "No aplica";
-    const fechaRecibo = document.getElementById("fechaRecibo").value || "No aplica";
-    const banco = document.getElementById("banco").value.trim() || "No aplica";
-    const comentarios = document.getElementById("comentarios").value.trim() || "No aplica";
+    function validarDatos({ cliente, monto, fecha, fechaRecibo }) {
+      if (monto !== "" && (isNaN(Number(monto)) || Number(monto) < 0)) {
+        showToast("El monto no puede ser negativo.", "warn");
+        return false;
+      }
 
-    const montoFinal = monto ? parseFloat(monto) : 0;
+      if (fecha && fechaRecibo && fecha !== "No aplica" && fechaRecibo !== "No aplica") {
+        if (fechaRecibo < fecha) {
+          showToast("La fecha del recibo no debería ser anterior a la fecha recibida.", "warn");
+          return false;
+        }
+      }
 
-    try {
-      await addDoc(collection(db, "transferencias"), {
-        cliente,
-        monto: montoFinal,
-        fecha,
-        estado,
-        recibo,
-        fechaRecibo,
-        banco,
-        comentarios
+      if (!cliente.trim() && monto === "" && !fecha) {
+        showToast("Completa al menos cliente, monto o fecha para registrar.", "warn");
+        return false;
+      }
+
+      return true;
+    }
+
+    async function cargarTransferencias() {
+      transferencias = [];
+      const querySnapshot = await getDocs(collection(db, "transferencias"));
+
+      querySnapshot.forEach((docu) => {
+        transferencias.push({ id: docu.id, ...docu.data() });
       });
 
-      limpiarFormulario();
-      cargarTransferencias();
-    } catch (error) {
-      alert("Error al guardar: " + error.message);
-    }
-  };
-
-  window.cambiarEstado = async function(id, estadoActual) {
-    let nuevoEstado = "Pendiente";
-
-    if (estadoActual === "Pendiente") nuevoEstado = "Aplicada";
-    else if (estadoActual === "Aplicada") nuevoEstado = "No aplica";
-    else if (estadoActual === "No aplica") nuevoEstado = "Pendiente";
-
-    try {
-      await updateDoc(doc(db, "transferencias", id), { estado: nuevoEstado });
-      cargarTransferencias();
-    } catch (error) {
-      alert("Error al actualizar: " + error.message);
-    }
-  };
-
-  window.eliminarTransferencia = async function(id) {
-    if (!confirm("¿Eliminar esta transferencia?")) return;
-
-    try {
-      await deleteDoc(doc(db, "transferencias", id));
-      cargarTransferencias();
-    } catch (error) {
-      alert("Error al eliminar: " + error.message);
-    }
-  };
-
-  window.editarTransferencia = function(id) {
-    const t = transferencias.find(x => x.id === id);
-    if (!t) return;
-
-    idEditando = id;
-
-    document.getElementById("editCliente").value = t.cliente === "No aplica" ? "" : (t.cliente || "");
-    document.getElementById("editMonto").value = t.monto || 0;
-    document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
-    document.getElementById("editEstado").value = t.estado || "Pendiente";
-    document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
-    document.getElementById("editFechaRecibo").value = t.fechaRecibo === "No aplica" ? "" : (t.fechaRecibo || "");
-    document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
-    document.getElementById("editComentarios").value = t.comentarios === "No aplica" ? "" : (t.comentarios || "");
-
-    document.getElementById("modalEditar").style.display = "flex";
-  };
-
-  window.cerrarModal = function() {
-    document.getElementById("modalEditar").style.display = "none";
-    idEditando = null;
-  };
-
-  window.guardarCambios = async function() {
-    if (!idEditando) return;
-
-    const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
-    const monto = document.getElementById("editMonto").value.trim();
-    const fecha = document.getElementById("editFecha").value || "No aplica";
-    const estado = document.getElementById("editEstado").value || "No aplica";
-    const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
-    const fechaRecibo = document.getElementById("editFechaRecibo").value || "No aplica";
-    const banco = document.getElementById("editBanco").value.trim() || "No aplica";
-    const comentarios = document.getElementById("editComentarios").value.trim() || "No aplica";
-
-    const montoFinal = monto ? parseFloat(monto) : 0;
-
-    try {
-      await updateDoc(doc(db, "transferencias", idEditando), {
-        cliente,
-        monto: montoFinal,
-        fecha,
-        estado,
-        recibo,
-        fechaRecibo,
-        banco,
-        comentarios
+      transferencias.sort((a, b) => {
+        const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
+        const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
+        return fechaA.localeCompare(fechaB);
       });
 
-      cerrarModal();
-      cargarTransferencias();
-    } catch (error) {
-      alert("Error al guardar cambios: " + error.message);
+      actualizarDashboard();
+      renderTabla();
     }
-  };
 
-  window.renderTabla = function() {
-    const filtro = document.getElementById("buscar").value.toLowerCase();
-    const tbody = document.getElementById("tablaBody");
-    tbody.innerHTML = "";
+    window.setFiltroEstado = function(estado) {
+      filtroEstadoActual = estado;
 
-    transferencias
-      .filter(t =>
-        (t.cliente + "").toLowerCase().includes(filtro) ||
-        (t.banco + "").toLowerCase().includes(filtro) ||
-        (t.recibo + "").toLowerCase().includes(filtro) ||
-        (t.estado + "").toLowerCase().includes(filtro) ||
-        (t.comentarios + "").toLowerCase().includes(filtro) ||
-        (t.monto + "").includes(filtro)
-      )
-      .forEach((t) => {
-        let estadoClass = "status-pendiente";
-        if (t.estado === "Aplicada") estadoClass = "status-aplicada";
-        if (t.estado === "No aplica") estadoClass = "status-noaplica";
+      document.getElementById("filtroTodas").classList.remove("active");
+      document.getElementById("filtroPendiente").classList.remove("active");
+      document.getElementById("filtroAplicada").classList.remove("active");
+
+      if (estado === "Todas") document.getElementById("filtroTodas").classList.add("active");
+      if (estado === "Pendiente") document.getElementById("filtroPendiente").classList.add("active");
+      if (estado === "Aplicada") document.getElementById("filtroAplicada").classList.add("active");
+
+      renderTabla();
+    };
+
+    window.login = async function() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showToast("Ingresa correo y contraseña.", "warn");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        showToast("Error de login: " + error.message, "error");
+      }
+    };
+
+    window.logout = async function() {
+      await signOut(auth);
+      showToast("Sesión cerrada.", "success");
+    };
+
+    window.crearRespaldo = async function() {
+      try {
+        const nombreUsuario = localStorage.getItem("nombreUsuarioSimbolico") || "Usuario";
+        const fechaHora = new Date();
+        const sello = fechaHora.toISOString();
+
+        const datosRespaldo = transferencias.map(t => ({
+          cliente: t.cliente || "No aplica",
+          monto: Number(t.monto) || 0,
+          fecha: t.fecha || "No aplica",
+          estado: t.estado || "Pendiente",
+          recibo: t.recibo || "No aplica",
+          fechaRecibo: t.fechaRecibo || "No aplica",
+          banco: t.banco || "No aplica",
+          comentarios: t.comentarios || "No aplica"
+        }));
+
+        await addDoc(collection(db, "respaldos_transferencias"), {
+          creadoEn: sello,
+          usuarioSimbolico: nombreUsuario,
+          totalRegistros: datosRespaldo.length,
+          datos: datosRespaldo
+        });
+
+        showToast("Respaldo creado correctamente en Firebase.", "success");
+      } catch (error) {
+        showToast("Error al crear respaldo: " + error.message, "error");
+      }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const nombreUsuario = obtenerNombreUsuario();
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        document.getElementById("topRight").style.display = "flex";
+        document.getElementById("userInfo").innerText = nombreUsuario;
+        cargarTransferencias();
+      } else {
+        document.getElementById("loginCard").style.display = "block";
+        document.getElementById("panel").style.display = "none";
+        document.getElementById("topRight").style.display = "none";
+        document.getElementById("userInfo").innerText = "";
+      }
+    });
+
+    window.guardarTransferencia = async function() {
+      const cliente = document.getElementById("cliente").value.trim() || "No aplica";
+      const monto = document.getElementById("monto").value.trim();
+      const fecha = document.getElementById("fecha").value || "No aplica";
+      const estado = document.getElementById("estado").value || "Pendiente";
+      const recibo = document.getElementById("recibo").value.trim() || "No aplica";
+      const fechaRecibo = document.getElementById("fechaRecibo").value || "No aplica";
+      const banco = document.getElementById("banco").value.trim() || "No aplica";
+      const comentarios = document.getElementById("comentarios").value.trim() || "No aplica";
+
+      if (!validarDatos({ cliente, monto, fecha, fechaRecibo })) return;
+
+      const montoFinal = monto ? parseFloat(monto) : 0;
+
+      try {
+        await addDoc(collection(db, "transferencias"), {
+          cliente,
+          monto: montoFinal,
+          fecha,
+          estado,
+          recibo,
+          fechaRecibo,
+          banco,
+          comentarios
+        });
+
+        limpiarFormulario();
+        await cargarTransferencias();
+        showToast("Transferencia guardada correctamente.", "success");
+      } catch (error) {
+        showToast("Error al guardar: " + error.message, "error");
+      }
+    };
+
+    window.cambiarEstado = async function(id, estadoActual) {
+      const nuevoEstado = estadoActual === "Pendiente" ? "Aplicada" : "Pendiente";
+
+      try {
+        await updateDoc(doc(db, "transferencias", id), { estado: nuevoEstado });
+        await cargarTransferencias();
+        showToast("Estado actualizado correctamente.", "success");
+      } catch (error) {
+        showToast("Error al actualizar: " + error.message, "error");
+      }
+    };
+
+    window.eliminarTransferencia = async function(id) {
+      const confirmar = confirm("¿Seguro que deseas eliminar esta transferencia? Esta acción no se puede deshacer.");
+      if (!confirmar) return;
+
+      try {
+        await deleteDoc(doc(db, "transferencias", id));
+        await cargarTransferencias();
+        showToast("Transferencia eliminada.", "success");
+      } catch (error) {
+        showToast("Error al eliminar: " + error.message, "error");
+      }
+    };
+
+    window.editarTransferencia = function(id) {
+      const t = transferencias.find(x => x.id === id);
+      if (!t) return;
+
+      idEditando = id;
+
+      document.getElementById("editCliente").value = t.cliente === "No aplica" ? "" : (t.cliente || "");
+      document.getElementById("editMonto").value = Number(t.monto) || 0;
+      document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
+      document.getElementById("editEstado").value = t.estado || "Pendiente";
+      document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
+      document.getElementById("editFechaRecibo").value = t.fechaRecibo === "No aplica" ? "" : (t.fechaRecibo || "");
+      document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
+      document.getElementById("editComentarios").value = t.comentarios === "No aplica" ? "" : (t.comentarios || "");
+
+      document.getElementById("modalEditar").style.display = "flex";
+    };
+
+    window.cerrarModal = function() {
+      document.getElementById("modalEditar").style.display = "none";
+      idEditando = null;
+    };
+
+    window.guardarCambios = async function() {
+      if (!idEditando) return;
+
+      const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
+      const monto = document.getElementById("editMonto").value.trim();
+      const fecha = document.getElementById("editFecha").value || "No aplica";
+      const estado = document.getElementById("editEstado").value || "Pendiente";
+      const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
+      const fechaRecibo = document.getElementById("editFechaRecibo").value || "No aplica";
+      const banco = document.getElementById("editBanco").value.trim() || "No aplica";
+      const comentarios = document.getElementById("editComentarios").value.trim() || "No aplica";
+
+      if (!validarDatos({ cliente, monto, fecha, fechaRecibo })) return;
+
+      const montoFinal = monto ? parseFloat(monto) : 0;
+
+      try {
+        await updateDoc(doc(db, "transferencias", idEditando), {
+          cliente,
+          monto: montoFinal,
+          fecha,
+          estado,
+          recibo,
+          fechaRecibo,
+          banco,
+          comentarios
+        });
+
+        cerrarModal();
+        await cargarTransferencias();
+        showToast("Registro actualizado correctamente.", "success");
+      } catch (error) {
+        showToast("Error al guardar cambios: " + error.message, "error");
+      }
+    };
+
+    window.renderTabla = function() {
+      const filtro = document.getElementById("buscar").value.toLowerCase();
+      const tbody = document.getElementById("tablaBody");
+      tbody.innerHTML = "";
+
+      const listaFiltrada = transferencias.filter(t => {
+        const coincideBusqueda =
+          (t.cliente + "").toLowerCase().includes(filtro) ||
+          (t.banco + "").toLowerCase().includes(filtro) ||
+          (t.recibo + "").toLowerCase().includes(filtro) ||
+          (t.estado + "").toLowerCase().includes(filtro) ||
+          (t.comentarios + "").toLowerCase().includes(filtro) ||
+          (t.monto + "").includes(filtro);
+
+        const coincideEstado =
+          filtroEstadoActual === "Todas" ||
+          t.estado === filtroEstadoActual;
+
+        return coincideBusqueda && coincideEstado;
+      });
+
+      if (listaFiltrada.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align:center; color:#9e9e9e;">
+              No se encontraron registros.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      listaFiltrada.forEach((t) => {
+        const estadoBadge = t.estado === "Aplicada"
+          ? `<span class="status-badge status-aplicada">Aplicada</span>`
+          : `<span class="status-badge status-pendiente">Pendiente</span>`;
 
         tbody.innerHTML += `
           <tr>
             <td>${t.cliente || "No aplica"}</td>
             <td>$${Number(t.monto || 0).toFixed(2)}</td>
             <td>${formatearFecha(t.fecha)}</td>
-            <td class="${estadoClass}">${t.estado || "No aplica"}</td>
+            <td>${estadoBadge}</td>
             <td>${t.recibo || "No aplica"}</td>
             <td>${formatearFecha(t.fechaRecibo)}</td>
             <td>${t.banco || "No aplica"}</td>
-            <td>${t.comentarios || "No aplica"}</td>
+            <td class="obs-cell">${t.comentarios || "No aplica"}</td>
             <td>
               <div class="table-actions">
                 <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
@@ -719,8 +1015,7 @@
           </tr>
         `;
       });
-  };
-</script>
-
+    };
+  </script>
 </body>
 </html>
