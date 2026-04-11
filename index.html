@@ -21,10 +21,45 @@
       font-size: 18px;
       font-weight: bold;
       border-bottom: 1px solid #333;
+      position: relative;
+    }
+
+    .top-right {
+      position: absolute;
+      right: 15px;
+      top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-right span {
+      font-size: 12px;
+      color: #aaa;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-logout {
+      background: #e53935;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      width: auto;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    .btn-logout:hover {
+      background: #b71c1c;
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1150px;
       margin: auto;
       padding: 20px;
     }
@@ -32,7 +67,7 @@
     .card {
       background: #161616;
       padding: 18px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid #333;
       margin-bottom: 20px;
     }
@@ -41,42 +76,71 @@
       margin-top: 0;
     }
 
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
+    label {
+      font-size: 13px;
+      color: #ccc;
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 5px;
     }
 
-    input, select {
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      font-size: 14px;
       background: #222;
       color: #fff;
-      border: 1px solid #444;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 45px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
     }
 
     button {
-      background: #1e88e5;
-      color: white;
+      border: none;
       cursor: pointer;
       font-weight: bold;
-    }
-
-    button:hover {
-      background: #1565c0;
+      border-radius: 10px;
     }
 
     .btn-guardar {
-      background: #8e24aa;
+      background: #5416DB;
+      color: white;
+      padding: 10px 18px;
+      font-size: 14px;
+      margin-top: 20px;
+      width: auto;
+      display: inline-block;
     }
 
     .btn-guardar:hover {
-      background: #6a1b9a;
+      background: #3f10aa;
     }
 
     .btn-danger {
       background: #e53935;
+      color: white;
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 8px;
     }
 
     .btn-danger:hover {
@@ -85,10 +149,28 @@
 
     .btn-edit {
       background: #3949ab;
+      color: white;
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 8px;
     }
 
     .btn-edit:hover {
       background: #283593;
+    }
+
+    .btn-estado {
+      background: #ffffff;
+      color: #000;
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .btn-estado:hover {
+      background: #d6d6d6;
     }
 
     table {
@@ -102,10 +184,13 @@
       border: 1px solid #333;
       padding: 10px;
       text-align: left;
+      vertical-align: top;
     }
 
     th {
       background: #222;
+      font-size: 12px;
+      color: #ccc;
     }
 
     .status-aplicada {
@@ -123,25 +208,6 @@
       font-weight: bold;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-    }
-
-    @media (max-width: 700px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .user-info {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #aaa;
-    }
-
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -150,7 +216,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.75);
       justify-content: center;
       align-items: center;
       padding: 20px;
@@ -161,7 +227,7 @@
       border: 1px solid #333;
       border-radius: 12px;
       padding: 20px;
-      max-width: 700px;
+      max-width: 820px;
       width: 100%;
     }
 
@@ -187,6 +253,11 @@
 
     .btn-cancel {
       background: #555;
+      color: white;
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 10px;
+      width: auto;
     }
 
     .btn-cancel:hover {
@@ -194,29 +265,42 @@
     }
 
     .actions-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-top: 15px;
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
   </style>
 </head>
 
 <body>
 
-<header>Control de Transferencias Bancarias</header>
+<header>
+  Control de Transferencias Bancarias
+  <div class="top-right" id="topRight" style="display:none;">
+    <span id="userInfo"></span>
+    <button class="btn-logout" onclick="logout()">Salir</button>
+  </div>
+</header>
 
 <div class="container">
 
-  <!-- LOGIN -->
   <div class="card" id="loginCard">
     <h3>Iniciar Sesión</h3>
+    <label>Correo</label>
     <input type="email" id="email" placeholder="Correo">
+
+    <label>Contraseña</label>
     <input type="password" id="password" placeholder="Contraseña">
-    <button onclick="login()">Ingresar</button>
+
+    <button class="btn-guardar" onclick="login()">Ingresar</button>
   </div>
 
-  <!-- PANEL PRINCIPAL -->
   <div id="panel" style="display:none;">
 
     <div class="card">
@@ -224,7 +308,6 @@
 
       <div class="grid">
 
-        <!-- IZQUIERDA -->
         <div>
           <label>Cliente</label>
           <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
@@ -232,30 +315,29 @@
           <label>Monto ($)</label>
           <input type="number" id="monto" placeholder="Ej: 50.00">
 
-          <label>Fecha transferencia</label>
+          <label>Fecha recibida</label>
           <input type="date" id="fecha">
 
-          <label>N° Recibo asociado</label>
-          <input type="text" id="recibo" placeholder="Ej: R-000123">
-
-          <label>Fecha del recibo</label>
-          <input type="date" id="fechaRecibo">
-        </div>
-
-        <!-- DERECHA -->
-        <div>
           <label>Estado</label>
           <select id="estado">
             <option value="Pendiente">Pendiente</option>
             <option value="Aplicada">Aplicada</option>
             <option value="No aplica">No aplica</option>
           </select>
+        </div>
 
-          <label>Banco</label>
-          <input type="text" id="banco" placeholder="Ej: BAC (o escribe No aplica)">
+        <div>
+          <label>N° Recibo</label>
+          <input type="text" id="recibo" placeholder="Ej: R-000123">
 
-          <label>Referencia</label>
-          <input type="text" id="ref" placeholder="Ej: BAC-2026-0001">
+          <label>Fecha recibo</label>
+          <input type="date" id="fechaRecibo">
+
+          <label>ID o Banco</label>
+          <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno">
+
+          <label>Observaciones / Comentarios</label>
+          <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc."></textarea>
         </div>
 
       </div>
@@ -265,11 +347,7 @@
 
     <div class="card">
       <h3>Buscar transferencias</h3>
-      <input type="text" id="buscar" placeholder="Buscar por referencia, cliente, banco, recibo o monto..." onkeyup="renderTabla()">
-
-      <div class="user-info" id="userInfo"></div>
-
-      <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+      <input type="text" id="buscar" placeholder="Buscar por cliente, banco, recibo, estado o monto..." onkeyup="renderTabla()">
     </div>
 
     <div class="card">
@@ -280,12 +358,12 @@
           <tr>
             <th>Cliente</th>
             <th>Monto</th>
-            <th>Fecha Transferencia</th>
-            <th>Banco</th>
-            <th>Referencia</th>
+            <th>Fecha Recibida</th>
             <th>Estado</th>
             <th>N° Recibo</th>
             <th>Fecha Recibo</th>
+            <th>ID / Banco</th>
+            <th>Observaciones</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -299,7 +377,6 @@
 </div>
 
 
-<!-- MODAL EDITAR -->
 <div class="modal" id="modalEditar">
   <div class="modal-content">
 
@@ -309,6 +386,7 @@
     </div>
 
     <div class="grid">
+
       <div>
         <label>Cliente</label>
         <input type="text" id="editCliente">
@@ -316,30 +394,31 @@
         <label>Monto ($)</label>
         <input type="number" id="editMonto">
 
-        <label>Fecha transferencia</label>
+        <label>Fecha recibida</label>
         <input type="date" id="editFecha">
 
-        <label>N° Recibo asociado</label>
-        <input type="text" id="editRecibo">
-
-        <label>Fecha del recibo</label>
-        <input type="date" id="editFechaRecibo">
-      </div>
-
-      <div>
         <label>Estado</label>
         <select id="editEstado">
           <option value="Pendiente">Pendiente</option>
           <option value="Aplicada">Aplicada</option>
           <option value="No aplica">No aplica</option>
         </select>
+      </div>
 
-        <label>Banco</label>
+      <div>
+        <label>N° Recibo</label>
+        <input type="text" id="editRecibo">
+
+        <label>Fecha recibo</label>
+        <input type="date" id="editFechaRecibo">
+
+        <label>ID o Banco</label>
         <input type="text" id="editBanco">
 
-        <label>Referencia</label>
-        <input type="text" id="editRef">
+        <label>Observaciones / Comentarios</label>
+        <textarea id="editComentarios"></textarea>
       </div>
+
     </div>
 
     <div class="actions-row">
@@ -374,14 +453,14 @@
   let idEditando = null;
 
   function limpiarFormulario() {
-    document.getElementById("ref").value = "";
     document.getElementById("cliente").value = "";
     document.getElementById("monto").value = "";
     document.getElementById("fecha").value = "";
-    document.getElementById("banco").value = "";
     document.getElementById("estado").value = "Pendiente";
     document.getElementById("recibo").value = "";
     document.getElementById("fechaRecibo").value = "";
+    document.getElementById("banco").value = "";
+    document.getElementById("comentarios").value = "";
   }
 
   async function cargarTransferencias() {
@@ -390,6 +469,13 @@
 
     querySnapshot.forEach((docu) => {
       transferencias.push({ id: docu.id, ...docu.data() });
+    });
+
+    // ORDENAR DEL MÁS ANTIGUO AL MÁS RECIENTE
+    transferencias.sort((a, b) => {
+      const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
+      const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
+      return fechaA.localeCompare(fechaB);
     });
 
     renderTabla();
@@ -419,45 +505,39 @@
     if (user) {
       document.getElementById("loginCard").style.display = "none";
       document.getElementById("panel").style.display = "block";
-      document.getElementById("userInfo").innerText = "Sesión activa: " + user.email;
+      document.getElementById("topRight").style.display = "flex";
+      document.getElementById("userInfo").innerText = user.email;
       cargarTransferencias();
     } else {
       document.getElementById("loginCard").style.display = "block";
       document.getElementById("panel").style.display = "none";
+      document.getElementById("topRight").style.display = "none";
       document.getElementById("userInfo").innerText = "";
     }
   });
 
   window.guardarTransferencia = async function() {
-    const ref = document.getElementById("ref").value.trim() || "No aplica";
     const cliente = document.getElementById("cliente").value.trim() || "No aplica";
     const monto = document.getElementById("monto").value.trim();
     const fecha = document.getElementById("fecha").value || "No aplica";
-    const banco = document.getElementById("banco").value.trim() || "No aplica";
     const estado = document.getElementById("estado").value || "No aplica";
     const recibo = document.getElementById("recibo").value.trim() || "No aplica";
     const fechaRecibo = document.getElementById("fechaRecibo").value || "No aplica";
+    const banco = document.getElementById("banco").value.trim() || "No aplica";
+    const comentarios = document.getElementById("comentarios").value.trim() || "No aplica";
 
     const montoFinal = monto ? parseFloat(monto) : 0;
 
-    if (ref.toLowerCase() !== "no aplica") {
-      const existe = transferencias.find(t => t.referencia?.toLowerCase() === ref.toLowerCase());
-      if (existe) {
-        alert("⚠️ Ya existe una transferencia con esa referencia.");
-        return;
-      }
-    }
-
     try {
       await addDoc(collection(db, "transferencias"), {
-        referencia: ref,
         cliente: cliente,
         monto: montoFinal,
         fecha: fecha,
-        banco: banco,
         estado: estado,
         recibo: recibo,
-        fechaRecibo: fechaRecibo
+        fechaRecibo: fechaRecibo,
+        banco: banco,
+        comentarios: comentarios
       });
 
       limpiarFormulario();
@@ -493,7 +573,6 @@
     }
   };
 
-  // ABRIR MODAL EDITAR
   window.editarTransferencia = function(id) {
     const t = transferencias.find(x => x.id === id);
     if (!t) return;
@@ -503,11 +582,12 @@
     document.getElementById("editCliente").value = t.cliente === "No aplica" ? "" : (t.cliente || "");
     document.getElementById("editMonto").value = t.monto || 0;
     document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
-    document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
-    document.getElementById("editRef").value = t.referencia === "No aplica" ? "" : (t.referencia || "");
     document.getElementById("editEstado").value = t.estado || "Pendiente";
+
     document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
     document.getElementById("editFechaRecibo").value = t.fechaRecibo === "No aplica" ? "" : (t.fechaRecibo || "");
+    document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
+    document.getElementById("editComentarios").value = t.comentarios === "No aplica" ? "" : (t.comentarios || "");
 
     document.getElementById("modalEditar").style.display = "flex";
   };
@@ -517,43 +597,31 @@
     idEditando = null;
   };
 
-  // GUARDAR CAMBIOS DEL MODAL
   window.guardarCambios = async function() {
     if (!idEditando) return;
 
     const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
     const monto = document.getElementById("editMonto").value.trim();
     const fecha = document.getElementById("editFecha").value || "No aplica";
-    const banco = document.getElementById("editBanco").value.trim() || "No aplica";
-    const ref = document.getElementById("editRef").value.trim() || "No aplica";
     const estado = document.getElementById("editEstado").value || "No aplica";
+
     const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
     const fechaRecibo = document.getElementById("editFechaRecibo").value || "No aplica";
+    const banco = document.getElementById("editBanco").value.trim() || "No aplica";
+    const comentarios = document.getElementById("editComentarios").value.trim() || "No aplica";
 
     const montoFinal = monto ? parseFloat(monto) : 0;
 
-    // validar duplicado por referencia (solo si no aplica)
-    if (ref.toLowerCase() !== "no aplica") {
-      const existe = transferencias.find(t =>
-        t.referencia?.toLowerCase() === ref.toLowerCase() && t.id !== idEditando
-      );
-
-      if (existe) {
-        alert("⚠️ Ya existe otra transferencia con esa referencia.");
-        return;
-      }
-    }
-
     try {
       await updateDoc(doc(db, "transferencias", idEditando), {
-        referencia: ref,
         cliente: cliente,
         monto: montoFinal,
         fecha: fecha,
-        banco: banco,
         estado: estado,
         recibo: recibo,
-        fechaRecibo: fechaRecibo
+        fechaRecibo: fechaRecibo,
+        banco: banco,
+        comentarios: comentarios
       });
 
       cerrarModal();
@@ -563,7 +631,6 @@
     }
   };
 
-  // TABLA
   window.renderTabla = function() {
     const filtro = document.getElementById("buscar").value.toLowerCase();
     const tbody = document.getElementById("tablaBody");
@@ -571,10 +638,11 @@
 
     transferencias
       .filter(t =>
-        (t.referencia + "").toLowerCase().includes(filtro) ||
         (t.cliente + "").toLowerCase().includes(filtro) ||
         (t.banco + "").toLowerCase().includes(filtro) ||
         (t.recibo + "").toLowerCase().includes(filtro) ||
+        (t.estado + "").toLowerCase().includes(filtro) ||
+        (t.comentarios + "").toLowerCase().includes(filtro) ||
         (t.monto + "").includes(filtro)
       )
       .forEach((t) => {
@@ -588,15 +656,17 @@
             <td>${t.cliente || "No aplica"}</td>
             <td>$${Number(t.monto || 0).toFixed(2)}</td>
             <td>${t.fecha || "No aplica"}</td>
-            <td>${t.banco || "No aplica"}</td>
-            <td>${t.referencia || "No aplica"}</td>
             <td class="${estadoClass}">${t.estado || "No aplica"}</td>
             <td>${t.recibo || "No aplica"}</td>
             <td>${t.fechaRecibo || "No aplica"}</td>
+            <td>${t.banco || "No aplica"}</td>
+            <td>${t.comentarios || "No aplica"}</td>
             <td>
-              <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
-              <button onclick="cambiarEstado('${t.id}', '${t.estado}')">Estado</button>
-              <button class="btn-danger" onclick="eliminarTransferencia('${t.id}')">Eliminar</button>
+              <div class="table-actions">
+                <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
+                <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">Estado</button>
+                <button class="btn-danger" onclick="eliminarTransferencia('${t.id}')">Eliminar</button>
+              </div>
             </td>
           </tr>
         `;
