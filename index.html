@@ -279,6 +279,31 @@
       margin: 0;
     }
 
+    .filter-select {
+      width: 140px;
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 13px;
+      border-radius: 10px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+    }
+
+    .btn-clear-filters {
+      background: #2a2a2a;
+      color: #f2f2f2;
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      width: auto;
+    }
+
+    .btn-clear-filters:hover {
+      background: #333;
+    }
+
     .dashboard {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -392,28 +417,28 @@
     }
 
     .toast {
-  position: fixed;
-  top: 78px;
-  left: 16px;
-  z-index: 1000;
-  width: 140px;
-  max-width: 140px;
-  background: rgba(29, 29, 29, 0.96);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-left: 3px solid #5416DB;
-  border-radius: 10px;
-  padding: 7px 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.22);
-  backdrop-filter: blur(6px);
-  display: none;
-  font-size: 10px;
-  line-height: 1.25;
-  letter-spacing: 0.1px;
-  white-space: normal;
-  word-break: break-word;
-}
-    
+      position: fixed;
+      top: 78px;
+      left: 16px;
+      z-index: 1000;
+      width: 140px;
+      max-width: 140px;
+      background: rgba(29, 29, 29, 0.96);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid #5416DB;
+      border-radius: 10px;
+      padding: 7px 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+      backdrop-filter: blur(6px);
+      display: none;
+      font-size: 10px;
+      line-height: 1.25;
+      letter-spacing: 0.1px;
+      white-space: normal;
+      word-break: break-word;
+    }
+
     .toast.success {
       border-left-color: #4caf50;
     }
@@ -611,6 +636,26 @@
           </div>
 
           <div class="toolbar-right">
+            <select id="filtroMes" class="filter-select" onchange="renderTabla()">
+              <option value="">Mes</option>
+              <option value="01">Enero</option>
+              <option value="02">Febrero</option>
+              <option value="03">Marzo</option>
+              <option value="04">Abril</option>
+              <option value="05">Mayo</option>
+              <option value="06">Junio</option>
+              <option value="07">Julio</option>
+              <option value="08">Agosto</option>
+              <option value="09">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+
+            <select id="filtroAnio" class="filter-select" onchange="renderTabla()">
+              <option value="">Año</option>
+            </select>
+
             <input
               type="text"
               id="buscar"
@@ -618,6 +663,8 @@
               placeholder="Buscar por cliente, banco, recibo, estado o monto..."
               onkeyup="renderTabla()"
             >
+
+            <button class="btn-clear-filters" onclick="limpiarFiltros()">Limpiar filtros</button>
           </div>
         </div>
 
@@ -805,6 +852,34 @@
       document.getElementById("dashMonto").textContent = `$${montoTotal.toFixed(2)}`;
     }
 
+    function llenarFiltroAnios() {
+      const selectAnio = document.getElementById("filtroAnio");
+      const valorActual = selectAnio.value;
+
+      const anios = new Set();
+
+      transferencias.forEach(t => {
+        if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
+          anios.add(t.fecha.substring(0, 4));
+        }
+      });
+
+      const aniosOrdenados = Array.from(anios).sort((a, b) => b.localeCompare(a));
+
+      selectAnio.innerHTML = `<option value="">Año</option>`;
+
+      aniosOrdenados.forEach(anio => {
+        const option = document.createElement("option");
+        option.value = anio;
+        option.textContent = anio;
+        selectAnio.appendChild(option);
+      });
+
+      if (aniosOrdenados.includes(valorActual)) {
+        selectAnio.value = valorActual;
+      }
+    }
+
     function limpiarFormulario() {
       document.getElementById("cliente").value = "";
       document.getElementById("monto").value = "";
@@ -815,6 +890,19 @@
       document.getElementById("banco").value = "";
       document.getElementById("comentarios").value = "";
     }
+
+    window.limpiarFiltros = function() {
+      document.getElementById("buscar").value = "";
+      document.getElementById("filtroMes").value = "";
+      document.getElementById("filtroAnio").value = "";
+      filtroEstadoActual = "Todas";
+
+      document.getElementById("filtroTodas").classList.add("active");
+      document.getElementById("filtroPendiente").classList.remove("active");
+      document.getElementById("filtroAplicada").classList.remove("active");
+
+      renderTabla();
+    };
 
     function validarDatos({ cliente, monto, fecha, fechaRecibo }) {
       if (monto !== "" && (isNaN(Number(monto)) || Number(monto) < 0)) {
@@ -852,6 +940,7 @@
       });
 
       actualizarDashboard();
+      llenarFiltroAnios();
       renderTabla();
     }
 
@@ -1055,6 +1144,8 @@
 
     window.renderTabla = function() {
       const filtro = document.getElementById("buscar").value.toLowerCase();
+      const filtroMes = document.getElementById("filtroMes").value;
+      const filtroAnio = document.getElementById("filtroAnio").value;
       const tbody = document.getElementById("tablaBody");
       tbody.innerHTML = "";
 
@@ -1071,7 +1162,19 @@
           filtroEstadoActual === "Todas" ||
           t.estado === filtroEstadoActual;
 
-        return coincideBusqueda && coincideEstado;
+        let coincideFecha = true;
+
+        if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
+          const anio = t.fecha.substring(0, 4);
+          const mes = t.fecha.substring(5, 7);
+
+          if (filtroAnio && anio !== filtroAnio) coincideFecha = false;
+          if (filtroMes && mes !== filtroMes) coincideFecha = false;
+        } else {
+          if (filtroAnio || filtroMes) coincideFecha = false;
+        }
+
+        return coincideBusqueda && coincideEstado && coincideFecha;
       });
 
       if (listaFiltrada.length === 0) {
