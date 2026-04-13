@@ -831,3 +831,443 @@
         { background: "#1F3D2B", color: "#D8FFE8" },
         { background: "#4A2230", color: "#FFD9E2" },
         { background: "#2B2F4A", color: "#E0E5FF" }
+      ];
+
+      const elegido = tonos[suma % tonos.length];
+
+      return {
+        inicial,
+        background: elegido.background,
+        color: elegido.color
+      };
+    }
+
+    function actualizarAvatar(nombre) {
+      const avatar = document.getElementById("userAvatar");
+      if (!avatar) return;
+
+      const estilo = obtenerEstiloAvatar(nombre);
+      avatar.textContent = estilo.inicial;
+      avatar.style.background = estilo.background;
+      avatar.style.color = estilo.color;
+      avatar.title = nombre;
+      avatar.setAttribute("aria-label", nombre);
+    }
+
+    function actualizarDashboard() {
+      const total = transferencias.length;
+      const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
+      const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
+      const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+
+      document.getElementById("dashTotal").textContent = total;
+      document.getElementById("dashPendientes").textContent = pendientes;
+      document.getElementById("dashAplicadas").textContent = aplicadas;
+      document.getElementById("dashMonto").textContent = `$${montoTotal.toFixed(2)}`;
+    }
+
+    function llenarFiltroAnios() {
+      const selectAnio = document.getElementById("filtroAnio");
+      if (!selectAnio) return;
+
+      const valorActual = selectAnio.value;
+      const anios = new Set();
+
+      transferencias.forEach(t => {
+        if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
+          anios.add(t.fecha.substring(0, 4));
+        }
+      });
+
+      const aniosOrdenados = Array.from(anios).sort((a, b) => b.localeCompare(a));
+      selectAnio.innerHTML = `<option value="">Año</option>`;
+
+      aniosOrdenados.forEach(anio => {
+        const option = document.createElement("option");
+        option.value = anio;
+        option.textContent = anio;
+        selectAnio.appendChild(option);
+      });
+
+      if (aniosOrdenados.includes(valorActual)) {
+        selectAnio.value = valorActual;
+      }
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("cliente").value = "";
+      document.getElementById("monto").value = "";
+      document.getElementById("fecha").value = "";
+      document.getElementById("estado").value = "Pendiente";
+      document.getElementById("recibo").value = "";
+      document.getElementById("fechaRecibo").value = "";
+      document.getElementById("banco").value = "";
+      document.getElementById("comentarios").value = "";
+    }
+
+    function validarDatos({ cliente, monto, fecha, fechaRecibo }) {
+      if (monto !== "" && (isNaN(Number(monto)) || Number(monto) < 0)) {
+        showToast("El monto no puede ser negativo.", "warn");
+        return false;
+      }
+
+      if (fecha && fechaRecibo && fecha !== "No aplica" && fechaRecibo !== "No aplica") {
+        if (fechaRecibo < fecha) {
+          showToast("La fecha del recibo no debería ser anterior a la fecha recibida.", "warn");
+          return false;
+        }
+      }
+
+      if (!cliente.trim() && monto === "" && !fecha) {
+        showToast("Completa al menos cliente, monto o fecha para registrar.", "warn");
+        return false;
+      }
+
+      return true;
+    }
+
+    function procesarSnapshot(snapshot) {
+      transferencias = [];
+
+      snapshot.forEach((docu) => {
+        transferencias.push({ id: docu.id, ...docu.data() });
+      });
+
+      transferencias.sort((a, b) => {
+        const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
+        const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
+        return fechaA.localeCompare(fechaB);
+      });
+
+      actualizarDashboard();
+      llenarFiltroAnios();
+      renderTabla();
+    }
+
+    function iniciarListenerTransferencias() {
+      if (unsubscribeTransferencias) {
+        unsubscribeTransferencias();
+      }
+
+      unsubscribeTransferencias = onSnapshot(
+        collection(db, "transferencias"),
+        (snapshot) => {
+          procesarSnapshot(snapshot);
+        },
+        (error) => {
+          console.error("Error en tiempo real:", error);
+          alert("Error al sincronizar datos: " + error.code + " | " + error.message);
+        }
+      );
+    }
+
+    window.setFiltroEstado = function(estado) {
+      filtroEstadoActual = estado;
+
+      document.getElementById("filtroTodas").classList.remove("active");
+      document.getElementById("filtroPendiente").classList.remove("active");
+      document.getElementById("filtroAplicada").classList.remove("active");
+
+      if (estado === "Todas") document.getElementById("filtroTodas").classList.add("active");
+      if (estado === "Pendiente") document.getElementById("filtroPendiente").classList.add("active");
+      if (estado === "Aplicada") document.getElementById("filtroAplicada").classList.add("active");
+
+      renderTabla();
+    };
+
+    window.limpiarFiltros = function() {
+      document.getElementById("buscar").value = "";
+      document.getElementById("filtroMes").value = "";
+      document.getElementById("filtroAnio").value = "";
+      filtroEstadoActual = "Todas";
+
+      document.getElementById("filtroTodas").classList.add("active");
+      document.getElementById("filtroPendiente").classList.remove("active");
+      document.getElementById("filtroAplicada").classList.remove("active");
+
+      renderTabla();
+    };
+
+    window.login = async function() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showToast("Ingresa correo y contraseña.", "warn");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Error de login:", error);
+        alert("Error de login: " + error.code + " | " + error.message);
+        showToast("Error de acceso.", "error");
+      }
+    };
+
+    window.logout = async function() {
+      try {
+        if (unsubscribeTransferencias) {
+          unsubscribeTransferencias();
+          unsubscribeTransferencias = null;
+        }
+        await signOut(auth);
+        showToast("Sesión cerrada.", "success");
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
+    };
+
+    window.crearRespaldo = async function() {
+      try {
+        const nombreUsuario = localStorage.getItem("nombreUsuarioSimbolico") || "Usuario";
+        const sello = new Date().toISOString();
+
+        const datosRespaldo = transferencias.map(t => ({
+          cliente: t.cliente || "No aplica",
+          monto: Number(t.monto) || 0,
+          fecha: t.fecha || "No aplica",
+          estado: t.estado || "Pendiente",
+          recibo: t.recibo || "No aplica",
+          fechaRecibo: t.fechaRecibo || "No aplica",
+          banco: t.banco || "No aplica",
+          comentarios: t.comentarios || "No aplica"
+        }));
+
+        await addDoc(collection(db, "respaldos_transferencias"), {
+          creadoEn: sello,
+          usuarioSimbolico: nombreUsuario,
+          totalRegistros: datosRespaldo.length,
+          datos: datosRespaldo
+        });
+
+        showToast("Respaldo creado.", "success");
+      } catch (error) {
+        console.error("Error al crear respaldo:", error);
+        showToast("Error respaldo.", "error");
+      }
+    };
+
+    window.guardarTransferencia = async function() {
+      const cliente = document.getElementById("cliente").value.trim() || "No aplica";
+      const monto = document.getElementById("monto").value.trim();
+      const fecha = document.getElementById("fecha").value || "No aplica";
+      const estado = document.getElementById("estado").value || "Pendiente";
+      const recibo = document.getElementById("recibo").value.trim() || "No aplica";
+      const fechaRecibo = document.getElementById("fechaRecibo").value || "No aplica";
+      const banco = document.getElementById("banco").value.trim() || "No aplica";
+      const comentarios = document.getElementById("comentarios").value.trim() || "No aplica";
+
+      if (!validarDatos({ cliente, monto, fecha, fechaRecibo })) return;
+
+      const montoFinal = monto ? parseFloat(monto) : 0;
+
+      try {
+        await addDoc(collection(db, "transferencias"), {
+          cliente,
+          monto: montoFinal,
+          fecha,
+          estado,
+          recibo,
+          fechaRecibo,
+          banco,
+          comentarios
+        });
+
+        limpiarFormulario();
+        showToast("Guardado.", "success");
+      } catch (error) {
+        console.error("Error al guardar:", error);
+        showToast("Error guardar.", "error");
+      }
+    };
+
+    window.cambiarEstado = async function(id, estadoActual) {
+      const nuevoEstado = estadoActual === "Pendiente" ? "Aplicada" : "Pendiente";
+
+      try {
+        await updateDoc(doc(db, "transferencias", id), { estado: nuevoEstado });
+        showToast("Estado ok.", "success");
+      } catch (error) {
+        console.error("Error al actualizar estado:", error);
+        showToast("Error estado.", "error");
+      }
+    };
+
+    window.eliminarTransferencia = async function(id) {
+      const confirmar = confirm("¿Seguro que deseas eliminar esta transferencia? Esta acción no se puede deshacer.");
+      if (!confirmar) return;
+
+      try {
+        await deleteDoc(doc(db, "transferencias", id));
+        showToast("Eliminada.", "success");
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+        showToast("Error eliminar.", "error");
+      }
+    };
+
+    window.editarTransferencia = function(id) {
+      const t = transferencias.find(x => x.id === id);
+      if (!t) return;
+
+      idEditando = id;
+
+      document.getElementById("editCliente").value = t.cliente === "No aplica" ? "" : (t.cliente || "");
+      document.getElementById("editMonto").value = Number(t.monto) || 0;
+      document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
+      document.getElementById("editEstado").value = t.estado || "Pendiente";
+      document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
+      document.getElementById("editFechaRecibo").value = t.fechaRecibo === "No aplica" ? "" : (t.fechaRecibo || "");
+      document.getElementById("editBanco").value = t.banco === "No aplica" ? "" : (t.banco || "");
+      document.getElementById("editComentarios").value = t.comentarios === "No aplica" ? "" : (t.comentarios || "");
+
+      document.getElementById("modalEditar").style.display = "flex";
+    };
+
+    window.cerrarModal = function() {
+      document.getElementById("modalEditar").style.display = "none";
+      idEditando = null;
+    };
+
+    window.guardarCambios = async function() {
+      if (!idEditando) return;
+
+      const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
+      const monto = document.getElementById("editMonto").value.trim();
+      const fecha = document.getElementById("editFecha").value || "No aplica";
+      const estado = document.getElementById("editEstado").value || "Pendiente";
+      const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
+      const fechaRecibo = document.getElementById("editFechaRecibo").value || "No aplica";
+      const banco = document.getElementById("editBanco").value.trim() || "No aplica";
+      const comentarios = document.getElementById("editComentarios").value.trim() || "No aplica";
+
+      if (!validarDatos({ cliente, monto, fecha, fechaRecibo })) return;
+
+      const montoFinal = monto ? parseFloat(monto) : 0;
+
+      try {
+        await updateDoc(doc(db, "transferencias", idEditando), {
+          cliente,
+          monto: montoFinal,
+          fecha,
+          estado,
+          recibo,
+          fechaRecibo,
+          banco,
+          comentarios
+        });
+
+        cerrarModal();
+        showToast("Actualizado.", "success");
+      } catch (error) {
+        console.error("Error al guardar cambios:", error);
+        showToast("Error editar.", "error");
+      }
+    };
+
+    window.renderTabla = function() {
+      const filtro = document.getElementById("buscar").value.toLowerCase();
+      const filtroMes = document.getElementById("filtroMes").value;
+      const filtroAnio = document.getElementById("filtroAnio").value;
+      const tbody = document.getElementById("tablaBody");
+      tbody.innerHTML = "";
+
+      const listaFiltrada = transferencias.filter(t => {
+        const coincideBusqueda =
+          (t.cliente + "").toLowerCase().includes(filtro) ||
+          (t.banco + "").toLowerCase().includes(filtro) ||
+          (t.recibo + "").toLowerCase().includes(filtro) ||
+          (t.estado + "").toLowerCase().includes(filtro) ||
+          (t.comentarios + "").toLowerCase().includes(filtro) ||
+          (t.monto + "").includes(filtro);
+
+        const coincideEstado =
+          filtroEstadoActual === "Todas" ||
+          t.estado === filtroEstadoActual;
+
+        let coincideFecha = true;
+
+        if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
+          const anio = t.fecha.substring(0, 4);
+          const mes = t.fecha.substring(5, 7);
+
+          if (filtroAnio && anio !== filtroAnio) coincideFecha = false;
+          if (filtroMes && mes !== filtroMes) coincideFecha = false;
+        } else {
+          if (filtroAnio || filtroMes) coincideFecha = false;
+        }
+
+        return coincideBusqueda && coincideEstado && coincideFecha;
+      });
+
+      if (listaFiltrada.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align:center; color:#9e9e9e;">
+              No se encontraron registros.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      listaFiltrada.forEach((t) => {
+        const estadoBadge = t.estado === "Aplicada"
+          ? `<span class="status-badge status-aplicada">Aplicada</span>`
+          : `<span class="status-badge status-pendiente">Pendiente</span>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${t.cliente || "No aplica"}</td>
+            <td>$${Number(t.monto || 0).toFixed(2)}</td>
+            <td>${formatearFecha(t.fecha)}</td>
+            <td>${estadoBadge}</td>
+            <td>${t.recibo || "No aplica"}</td>
+            <td>${formatearFecha(t.fechaRecibo)}</td>
+            <td>${t.banco || "No aplica"}</td>
+            <td class="obs-cell">${t.comentarios || "No aplica"}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
+                <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">Estado</button>
+                ${esAdmin ? `<button class="btn-danger" onclick="eliminarTransferencia('${t.id}')">Eliminar</button>` : ""}
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const nombreUsuario = obtenerNombreUsuario();
+        actualizarAvatar(nombreUsuario);
+
+        esAdmin = (user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        document.getElementById("topRight").style.display = "flex";
+
+        const btnRespaldo = document.getElementById("btnRespaldo");
+        if (btnRespaldo) {
+          btnRespaldo.style.display = esAdmin ? "inline-block" : "none";
+        }
+
+        iniciarListenerTransferencias();
+      } else {
+        esAdmin = false;
+        if (unsubscribeTransferencias) {
+          unsubscribeTransferencias();
+          unsubscribeTransferencias = null;
+        }
+        document.getElementById("loginCard").style.display = "block";
+        document.getElementById("panel").style.display = "none";
+        document.getElementById("topRight").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
