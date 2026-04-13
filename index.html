@@ -2154,15 +2154,25 @@
       tbody.innerHTML = "";
 
       const listaFiltrada = transferencias.filter(t => {
-        const coincideBusqueda =
-          (t.cliente + "").toLowerCase().includes(filtro) ||
-          (t.banco + "").toLowerCase().includes(filtro) ||
-          (t.recibo + "").toLowerCase().includes(filtro) ||
-          (t.estado + "").toLowerCase().includes(filtro) ||
-          (t.comentarios + "").toLowerCase().includes(filtro) ||
-          (t.monto + "").includes(filtro) ||
-          (t.createdByName + "").toLowerCase().includes(filtro) ||
-          (t.updatedByName + "").toLowerCase().includes(filtro);
+       const palabras = filtro
+  .split(" ")
+  .map(p => p.trim())
+  .filter(p => p !== "");
+
+const textoRegistro = [
+  t.cliente,
+  t.banco,
+  t.recibo,
+  t.estado,
+  t.comentarios,
+  t.monto,
+  t.createdByName,
+  t.updatedByName
+].join(" ").toLowerCase();
+
+const coincideBusqueda =
+  palabras.length === 0 ||
+  palabras.every(palabra => textoRegistro.includes(palabra));
 
         const coincideEstado =
           filtroEstadoActual === "Todas" ||
