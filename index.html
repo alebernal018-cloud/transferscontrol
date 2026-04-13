@@ -667,35 +667,6 @@
       line-height: 1.45;
     }
 
-    .users-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-      margin-bottom: 18px;
-    }
-
-    .user-card {
-      background: #1c1c1c;
-      border: 1px solid #313131;
-      border-radius: 12px;
-      padding: 14px;
-    }
-
-    .user-card-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .user-card-line {
-      font-size: 12px;
-      color: #c8c8c8;
-      margin-top: 5px;
-      line-height: 1.4;
-      word-break: break-word;
-    }
-
     .audit-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -756,7 +727,6 @@
     }
 
     @media (max-width: 980px) {
-      .users-grid,
       .audit-grid,
       .info-grid {
         grid-template-columns: 1fr;
@@ -931,7 +901,6 @@
     </div>
   </div>
 
-  <!-- Editar -->
   <div class="modal" id="modalEditar">
     <div class="modal-content">
       <div class="modal-header">
@@ -979,7 +948,6 @@
     </div>
   </div>
 
-  <!-- Eliminar -->
   <div class="modal" id="modalEliminar">
     <div class="modal-content modal-small">
       <div class="modal-header">
@@ -996,7 +964,6 @@
     </div>
   </div>
 
-  <!-- Aviso -->
   <div class="modal" id="modalAviso">
     <div class="modal-content modal-small">
       <div class="modal-header">
@@ -1010,7 +977,6 @@
     </div>
   </div>
 
-  <!-- Info -->
   <div class="modal" id="modalInfo">
     <div class="modal-content modal-medium">
       <div class="modal-header">
@@ -1051,7 +1017,6 @@
     </div>
   </div>
 
-  <!-- Historial -->
   <div class="modal" id="modalHistorial">
     <div class="modal-content">
       <div class="modal-header">
@@ -1079,7 +1044,6 @@
     </div>
   </div>
 
-  <!-- Usuarios -->
   <div class="modal" id="modalUsuarios">
     <div class="modal-content">
       <div class="modal-header">
@@ -1107,7 +1071,6 @@
     </div>
   </div>
 
-  <!-- Auditoría -->
   <div class="modal" id="modalAuditoria">
     <div class="modal-content">
       <div class="modal-header">
@@ -1175,10 +1138,8 @@
       updateDoc,
       deleteDoc,
       doc,
+      getDoc,
       onSnapshot,
-      query,
-      where,
-      getDocs,
       setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -1289,16 +1250,20 @@
     }
 
     async function obtenerNombreUsuarioPorCorreo(email) {
-      const id = email.toLowerCase();
-      const ref = doc(db, "usuarios_app", id);
-      const snap = await getDocs(query(collection(db, "usuarios_app"), where("email", "==", email)));
+      try {
+        const id = email.toLowerCase();
+        const snap = await getDoc(doc(db, "usuarios_app", id));
 
-      if (!snap.empty) {
-        const data = snap.docs[0].data();
-        return data.nombreSimbolico || null;
+        if (snap.exists()) {
+          const data = snap.data();
+          return data.nombreSimbolico || null;
+        }
+
+        return null;
+      } catch (error) {
+        console.error("Error al obtener nombre de usuario:", error);
+        return null;
       }
-
-      return null;
     }
 
     async function guardarUsuarioApp(email, nombre, extra = {}) {
@@ -1545,9 +1510,6 @@
           showToast("Nuevo registro agregado.", "success");
           showGlobalPopup("Nueva transferencia registrada", `${nombreAutor} registró una nueva transferencia.`, formatearFechaHora(new Date().toISOString()));
         } else if (change.type === "modified") {
-          const mensaje = data.estado === "Aplicada" || data.estado === "Pendiente"
-            ? "Se actualizó una transferencia."
-            : "Se modificó un registro.";
           showToast("Registro actualizado por otro usuario.", "warn");
           showGlobalPopup("Se actualizó una transferencia", `${nombreAutor} realizó cambios en el sistema.`, formatearFechaHora(new Date().toISOString()));
         } else if (change.type === "removed") {
