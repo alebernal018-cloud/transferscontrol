@@ -807,7 +807,7 @@
             <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
 
             <label>Monto ($)</label>
-            <input type="number" id="monto" placeholder="Ej: 50.00" min="0" step="0.01">
+            <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)">
 
             <label>Fecha recibida</label>
             <input type="date" id="fecha">
@@ -914,7 +914,7 @@
           <input type="text" id="editCliente">
 
           <label>Monto ($)</label>
-          <input type="number" id="editMonto" min="0" step="0.01">
+          <input type="text" id="editMonto" inputmode="decimal" oninput="formatearInputMonto(this)">
 
           <label>Fecha recibida</label>
           <input type="date" id="editFecha">
@@ -1243,6 +1243,40 @@
       return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
     }
 
+    function formatearMonto(valor) {
+      return Number(valor || 0).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function limpiarMontoTexto(valor) {
+      return String(valor || "").replace(/,/g, "").trim();
+    }
+
+    window.formatearInputMonto = function(input) {
+      let valor = input.value.replace(/[^0-9.]/g, "");
+
+      const partes = valor.split(".");
+      if (partes.length > 2) {
+        valor = partes[0] + "." + partes.slice(1).join("");
+      }
+
+      let [entero, decimal] = valor.split(".");
+
+      if (!entero) entero = "0";
+      entero = entero.replace(/^0+(?=\d)/, "");
+
+      const enteroFormateado = Number(entero || 0).toLocaleString("en-US");
+
+      if (decimal !== undefined) {
+        decimal = decimal.slice(0, 2);
+        input.value = `${enteroFormateado}.${decimal}`;
+      } else {
+        input.value = entero ? enteroFormateado : "";
+      }
+    };
+
     function inicioDelDiaISO() {
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
@@ -1355,7 +1389,7 @@
       document.getElementById("dashTotal").textContent = total;
       document.getElementById("dashPendientes").textContent = pendientes;
       document.getElementById("dashAplicadas").textContent = aplicadas;
-      document.getElementById("dashMonto").textContent = `$${montoTotal.toFixed(2)}`;
+      document.getElementById("dashMonto").textContent = `$${formatearMonto(montoTotal)}`;
     }
 
     function llenarFiltroAnios() {
@@ -1608,7 +1642,7 @@
 
       const partes = [];
       if (d.cliente) partes.push(`Cliente: ${d.cliente}`);
-      if (d.monto !== undefined) partes.push(`Monto: $${Number(d.monto || 0).toFixed(2)}`);
+      if (d.monto !== undefined) partes.push(`Monto: $${formatearMonto(d.monto || 0)}`);
       if (d.fecha) partes.push(`Fecha: ${d.fecha}`);
       if (d.recibo) partes.push(`Recibo: ${d.recibo}`);
       if (d.banco) partes.push(`ID/Banco: ${d.banco}`);
@@ -1901,7 +1935,7 @@
 
       const rows = transferencias.map(t => [
         t.cliente || "",
-        Number(t.monto || 0).toFixed(2),
+        formatearMonto(t.monto || 0),
         t.fecha || "",
         t.estado || "",
         t.recibo || "",
@@ -1940,7 +1974,7 @@
 
     window.guardarTransferencia = async function() {
       const cliente = document.getElementById("cliente").value.trim() || "No aplica";
-      const montoTexto = document.getElementById("monto").value.trim();
+      const montoTexto = limpiarMontoTexto(document.getElementById("monto").value);
       const fecha = document.getElementById("fecha").value || "No aplica";
       const estado = document.getElementById("estado").value || "Pendiente";
       const recibo = document.getElementById("recibo").value.trim() || "No aplica";
@@ -2067,7 +2101,7 @@
       idEditando = id;
 
       document.getElementById("editCliente").value = t.cliente === "No aplica" ? "" : (t.cliente || "");
-      document.getElementById("editMonto").value = Number(t.monto) || 0;
+      document.getElementById("editMonto").value = formatearMonto(t.monto || 0);
       document.getElementById("editFecha").value = t.fecha === "No aplica" ? "" : (t.fecha || "");
       document.getElementById("editEstado").value = t.estado || "Pendiente";
       document.getElementById("editRecibo").value = t.recibo === "No aplica" ? "" : (t.recibo || "");
@@ -2087,7 +2121,7 @@
       if (!idEditando) return;
 
       const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
-      const montoTexto = document.getElementById("editMonto").value.trim();
+      const montoTexto = limpiarMontoTexto(document.getElementById("editMonto").value);
       const fecha = document.getElementById("editFecha").value || "No aplica";
       const estado = document.getElementById("editEstado").value || "Pendiente";
       const recibo = document.getElementById("editRecibo").value.trim() || "No aplica";
@@ -2154,25 +2188,16 @@
       tbody.innerHTML = "";
 
       const listaFiltrada = transferencias.filter(t => {
-       const palabras = filtro
-  .split(" ")
-  .map(p => p.trim())
-  .filter(p => p !== "");
-
-const textoRegistro = [
-  t.cliente,
-  t.banco,
-  t.recibo,
-  t.estado,
-  t.comentarios,
-  t.monto,
-  t.createdByName,
-  t.updatedByName
-].join(" ").toLowerCase();
-
-const coincideBusqueda =
-  palabras.length === 0 ||
-  palabras.every(palabra => textoRegistro.includes(palabra));
+        const coincideBusqueda =
+          (t.cliente + "").toLowerCase().includes(filtro) ||
+          (t.banco + "").toLowerCase().includes(filtro) ||
+          (t.recibo + "").toLowerCase().includes(filtro) ||
+          (t.estado + "").toLowerCase().includes(filtro) ||
+          (t.comentarios + "").toLowerCase().includes(filtro) ||
+          formatearMonto(t.monto || 0).includes(filtro) ||
+          (t.monto + "").includes(filtro.replace(/,/g, "")) ||
+          (t.createdByName + "").toLowerCase().includes(filtro) ||
+          (t.updatedByName + "").toLowerCase().includes(filtro);
 
         const coincideEstado =
           filtroEstadoActual === "Todas" ||
@@ -2212,7 +2237,7 @@ const coincideBusqueda =
         tbody.innerHTML += `
           <tr>
             <td>${t.cliente || "No aplica"}</td>
-            <td>$${Number(t.monto || 0).toFixed(2)}</td>
+            <td>$${formatearMonto(t.monto)}</td>
             <td>${formatearFecha(t.fecha)}</td>
             <td>${estadoBadge}</td>
             <td>${t.recibo || "No aplica"}</td>
