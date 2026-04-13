@@ -90,7 +90,7 @@
     }
 
     .container {
-      max-width: 1260px;
+      max-width: 1320px;
       margin: auto;
       padding: 20px;
     }
@@ -237,6 +237,20 @@
       background: #e9e9e9;
     }
 
+    .btn-info {
+      background: #2a2a2a;
+      color: #f2f2f2;
+      padding: 6px 10px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+
+    .btn-info:hover {
+      background: #363636;
+    }
+
     .btn-filter {
       background: #242424;
       color: #ddd;
@@ -353,7 +367,7 @@
       border-collapse: collapse;
       margin-top: 10px;
       font-size: 13px;
-      min-width: 1180px;
+      min-width: 1120px;
     }
 
     th, td {
@@ -417,20 +431,6 @@
       word-break: break-word;
     }
 
-    .control-cell {
-      min-width: 175px;
-      font-size: 11px;
-      line-height: 1.45;
-      color: #c7c7c7;
-    }
-
-    .control-cell .mini-label {
-      color: #8d8d8d;
-      display: block;
-      font-size: 10px;
-      margin-top: 2px;
-    }
-
     .welcome-note {
       font-size: 12px;
       color: #9a9a9a;
@@ -491,12 +491,18 @@
       border: 1px solid #333;
       border-radius: 12px;
       padding: 20px;
-      max-width: 820px;
+      max-width: 860px;
       width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-small {
       max-width: 420px;
+    }
+
+    .modal-medium {
+      max-width: 560px;
     }
 
     .modal-header {
@@ -549,6 +555,48 @@
       flex-wrap: wrap;
     }
 
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      background: #1c1c1c;
+      border: 1px solid #313131;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .info-label {
+      font-size: 11px;
+      color: #9b9b9b;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: #f2f2f2;
+      word-break: break-word;
+    }
+
+    .history-table {
+      width: 100%;
+      min-width: 720px;
+    }
+
+    .history-action {
+      font-weight: bold;
+      color: #d8d8d8;
+    }
+
+    .history-detail {
+      color: #bdbdbd;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .firma-ac3 {
       position: fixed;
       bottom: 10px;
@@ -576,6 +624,12 @@
       transform: translateY(-1px);
       background: rgba(84, 22, 219, 0.95);
     }
+
+    @media (max-width: 720px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 
@@ -584,6 +638,7 @@
     CONTROL DE TRANSFERENCIAS BANCARIAS
     <div class="top-right" id="topRight" style="display:none;">
       <div id="userAvatar" class="user-avatar" title="Usuario"></div>
+      <button id="btnHistorial" class="btn-secondary" onclick="abrirModalHistorial()">Historial</button>
       <button id="btnExportar" class="btn-secondary" onclick="exportarCSV()">Exportar CSV</button>
       <button id="btnRespaldo" class="btn-secondary" onclick="crearRespaldo()">Crear respaldo</button>
       <button class="btn-logout" onclick="logout()">Salir</button>
@@ -720,7 +775,6 @@
                 <th>Fecha Recibo</th>
                 <th>ID / Banco</th>
                 <th>Observaciones</th>
-                <th>Control</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -731,12 +785,11 @@
     </div>
   </div>
 
-  <!-- Modal editar -->
   <div class="modal" id="modalEditar">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Editar Transferencia</h3>
-        <button class="close-btn" onclick="cerrarModal()">✖</button>
+        <button class="close-btn" onclick="cerrarModalEditar()">✖</button>
       </div>
 
       <div class="grid">
@@ -774,12 +827,11 @@
 
       <div class="actions-row">
         <button class="btn-guardar" onclick="guardarCambios()">Guardar Cambios</button>
-        <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal eliminar -->
   <div class="modal" id="modalEliminar">
     <div class="modal-content modal-small">
       <div class="modal-header">
@@ -796,7 +848,6 @@
     </div>
   </div>
 
-  <!-- Modal aviso -->
   <div class="modal" id="modalAviso">
     <div class="modal-content modal-small">
       <div class="modal-header">
@@ -806,6 +857,73 @@
       <div class="modal-message" id="modalAvisoMensaje"></div>
       <div class="actions-row">
         <button class="btn-guardar" style="margin-top:0;" onclick="cerrarModalAviso()">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalInfo">
+    <div class="modal-content modal-medium">
+      <div class="modal-header">
+        <h3>Información del registro</h3>
+        <button class="close-btn" onclick="cerrarModalInfo()">✖</button>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-label">Creado por</div>
+          <div class="info-value" id="infoCreadoPor">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Correo creador</div>
+          <div class="info-value" id="infoCreadoEmail">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Fecha de creación</div>
+          <div class="info-value" id="infoCreadoFecha">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Última modificación por</div>
+          <div class="info-value" id="infoModificadoPor">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Correo última modificación</div>
+          <div class="info-value" id="infoModificadoEmail">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Fecha última modificación</div>
+          <div class="info-value" id="infoModificadoFecha">-</div>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-cancel" onclick="cerrarModalInfo()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalHistorial">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Historial del sistema</h3>
+        <button class="close-btn" onclick="cerrarModalHistorial()">✖</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Fecha y hora</th>
+              <th>Acción</th>
+              <th>Usuario</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHistorial"></tbody>
+        </table>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-cancel" onclick="cerrarModalHistorial()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -838,11 +956,13 @@
     const ADMIN_EMAIL = "alebernal018@gmail.com";
 
     let transferencias = [];
+    let historial = [];
     let idEditando = null;
     let idEliminar = null;
     let filtroEstadoActual = "Todas";
     let esAdmin = false;
     let unsubscribeTransferencias = null;
+    let unsubscribeHistorial = null;
     let currentUserEmail = "";
     let currentUserName = "";
     let snapshotInicialCargado = false;
@@ -1016,19 +1136,23 @@
       return true;
     }
 
+    function normalizarCampo(valor) {
+      return String(valor || "").trim().toLowerCase();
+    }
+
     function detectarDuplicado(data, excluirId = null) {
-      const cliente = (data.cliente || "").trim().toLowerCase();
+      const cliente = normalizarCampo(data.cliente);
       const monto = Number(data.monto || 0);
       const fecha = data.fecha || "No aplica";
-      const recibo = (data.recibo || "").trim().toLowerCase();
-      const banco = (data.banco || "").trim().toLowerCase();
+      const recibo = normalizarCampo(data.recibo);
+      const banco = normalizarCampo(data.banco);
 
       return transferencias.find(t => {
         if (excluirId && t.id === excluirId) return false;
 
-        const tRecibo = (t.recibo || "").trim().toLowerCase();
-        const tCliente = (t.cliente || "").trim().toLowerCase();
-        const tBanco = (t.banco || "").trim().toLowerCase();
+        const tRecibo = normalizarCampo(t.recibo);
+        const tCliente = normalizarCampo(t.cliente);
+        const tBanco = normalizarCampo(t.banco);
         const tFecha = t.fecha || "No aplica";
         const tMonto = Number(t.monto || 0);
 
@@ -1108,9 +1232,7 @@
     }
 
     function iniciarListenerTransferencias() {
-      if (unsubscribeTransferencias) {
-        unsubscribeTransferencias();
-      }
+      if (unsubscribeTransferencias) unsubscribeTransferencias();
 
       snapshotInicialCargado = false;
 
@@ -1125,6 +1247,114 @@
         }
       );
     }
+
+    function iniciarListenerHistorial() {
+      if (!esAdmin) return;
+      if (unsubscribeHistorial) unsubscribeHistorial();
+
+      unsubscribeHistorial = onSnapshot(
+        collection(db, "historial_transferencias"),
+        (snapshot) => {
+          historial = [];
+          snapshot.forEach((docu) => {
+            historial.push({ id: docu.id, ...docu.data() });
+          });
+
+          historial.sort((a, b) => {
+            const fa = a.fechaHora || "";
+            const fb = b.fechaHora || "";
+            return fb.localeCompare(fa);
+          });
+
+          renderHistorial();
+        },
+        (error) => {
+          console.error("Error historial:", error);
+        }
+      );
+    }
+
+    function traducirAccion(accion) {
+      const mapa = {
+        crear: "Registro creado",
+        editar: "Registro editado",
+        eliminar: "Registro eliminado",
+        cambio_estado: "Cambio de estado"
+      };
+      return mapa[accion] || accion;
+    }
+
+    function detalleHistorialTexto(item) {
+      const d = item.detalle || {};
+      if (item.accion === "cambio_estado") {
+        return `Estado: ${d.de || "No aplica"} → ${d.a || "No aplica"}`;
+      }
+
+      const partes = [];
+      if (d.cliente) partes.push(`Cliente: ${d.cliente}`);
+      if (d.monto !== undefined) partes.push(`Monto: $${Number(d.monto || 0).toFixed(2)}`);
+      if (d.fecha) partes.push(`Fecha: ${d.fecha}`);
+      if (d.recibo) partes.push(`Recibo: ${d.recibo}`);
+      if (d.banco) partes.push(`ID/Banco: ${d.banco}`);
+
+      return partes.join(" | ") || "Sin detalle";
+    }
+
+    function renderHistorial() {
+      const tbody = document.getElementById("tablaHistorial");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+
+      if (historial.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align:center; color:#9e9e9e;">
+              No hay movimientos en el historial.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      historial.forEach(item => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${formatearFechaHora(item.fechaHora)}</td>
+            <td class="history-action">${traducirAccion(item.accion)}</td>
+            <td>${item.usuarioNombre || "Usuario"}<br><span style="color:#8f8f8f;font-size:11px;">${item.usuarioEmail || "No aplica"}</span></td>
+            <td class="history-detail">${detalleHistorialTexto(item)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    window.abrirModalHistorial = function() {
+      if (!esAdmin) return;
+      document.getElementById("modalHistorial").style.display = "flex";
+    };
+
+    window.cerrarModalHistorial = function() {
+      document.getElementById("modalHistorial").style.display = "none";
+    };
+
+    window.abrirModalInfo = function(id) {
+      const t = transferencias.find(x => x.id === id);
+      if (!t) return;
+
+      document.getElementById("infoCreadoPor").textContent = t.createdByName || "No aplica";
+      document.getElementById("infoCreadoEmail").textContent = t.createdByEmail || "No aplica";
+      document.getElementById("infoCreadoFecha").textContent = formatearFechaHora(t.createdAt);
+      document.getElementById("infoModificadoPor").textContent = t.updatedByName || "No aplica";
+      document.getElementById("infoModificadoEmail").textContent = t.updatedByEmail || "No aplica";
+      document.getElementById("infoModificadoFecha").textContent = formatearFechaHora(t.updatedAt);
+
+      document.getElementById("modalInfo").style.display = "flex";
+    };
+
+    window.cerrarModalInfo = function() {
+      document.getElementById("modalInfo").style.display = "none";
+    };
 
     window.setFiltroEstado = function(estado) {
       filtroEstadoActual = estado;
@@ -1177,6 +1407,12 @@
           unsubscribeTransferencias();
           unsubscribeTransferencias = null;
         }
+
+        if (unsubscribeHistorial) {
+          unsubscribeHistorial();
+          unsubscribeHistorial = null;
+        }
+
         await signOut(auth);
         showToast("Sesión cerrada.", "success");
       } catch (error) {
@@ -1221,7 +1457,7 @@
 
       const headers = [
         "Cliente","Monto","FechaRecibida","Estado","NumeroRecibo","FechaRecibo",
-        "Banco","Observaciones","CreadoPor","CreadoPorEmail","FechaCreacion",
+        "IdOBanco","Observaciones","CreadoPor","CreadoPorEmail","FechaCreacion",
         "UltimaModificacionPor","UltimaModificacionPorEmail","FechaUltimaModificacion"
       ];
 
@@ -1373,7 +1609,8 @@
           cliente: t?.cliente || "No aplica",
           monto: t?.monto || 0,
           fecha: t?.fecha || "No aplica",
-          recibo: t?.recibo || "No aplica"
+          recibo: t?.recibo || "No aplica",
+          banco: t?.banco || "No aplica"
         });
 
         cerrarModalEliminar();
@@ -1402,7 +1639,7 @@
       document.getElementById("modalEditar").style.display = "flex";
     };
 
-    window.cerrarModal = function() {
+    window.cerrarModalEditar = function() {
       document.getElementById("modalEditar").style.display = "none";
       idEditando = null;
     };
@@ -1462,7 +1699,7 @@
           estado
         });
 
-        cerrarModal();
+        cerrarModalEditar();
         showToast("Actualizado.", "success");
       } catch (error) {
         console.error("Error al guardar cambios:", error);
@@ -1510,7 +1747,7 @@
       if (listaFiltrada.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" style="text-align:center; color:#9e9e9e;">
+            <td colspan="9" style="text-align:center; color:#9e9e9e;">
               No se encontraron registros.
             </td>
           </tr>
@@ -1533,21 +1770,9 @@
             <td>${formatearFecha(t.fechaRecibo)}</td>
             <td>${t.banco || "No aplica"}</td>
             <td class="obs-cell">${t.comentarios || "No aplica"}</td>
-            <td class="control-cell">
-              <span class="mini-label">Creado por</span>
-              ${t.createdByName || "No aplica"}
-              <br>
-              <span class="mini-label">Fecha creación</span>
-              ${formatearFechaHora(t.createdAt)}
-              <br>
-              <span class="mini-label">Últ. modificación</span>
-              ${t.updatedByName || "No aplica"}
-              <br>
-              <span class="mini-label">Fecha mod.</span>
-              ${formatearFechaHora(t.updatedAt)}
-            </td>
             <td>
               <div class="table-actions">
+                <button class="btn-info" onclick="abrirModalInfo('${t.id}')">Info</button>
                 <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
                 <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">Estado</button>
                 ${esAdmin ? `<button class="btn-danger" onclick="abrirModalEliminar('${t.id}')">Eliminar</button>` : ""}
@@ -1570,13 +1795,12 @@
         document.getElementById("panel").style.display = "block";
         document.getElementById("topRight").style.display = "flex";
 
-        const btnRespaldo = document.getElementById("btnRespaldo");
-        const btnExportar = document.getElementById("btnExportar");
-
-        if (btnRespaldo) btnRespaldo.style.display = esAdmin ? "inline-block" : "none";
-        if (btnExportar) btnExportar.style.display = esAdmin ? "inline-block" : "none";
+        document.getElementById("btnRespaldo").style.display = esAdmin ? "inline-block" : "none";
+        document.getElementById("btnExportar").style.display = esAdmin ? "inline-block" : "none";
+        document.getElementById("btnHistorial").style.display = esAdmin ? "inline-block" : "none";
 
         iniciarListenerTransferencias();
+        iniciarListenerHistorial();
       } else {
         currentUserEmail = "";
         currentUserName = "";
@@ -1587,6 +1811,11 @@
           unsubscribeTransferencias = null;
         }
 
+        if (unsubscribeHistorial) {
+          unsubscribeHistorial();
+          unsubscribeHistorial = null;
+        }
+
         document.getElementById("loginCard").style.display = "block";
         document.getElementById("panel").style.display = "none";
         document.getElementById("topRight").style.display = "none";
@@ -1594,9 +1823,11 @@
     });
 
     window.addEventListener("click", (e) => {
-      if (e.target === document.getElementById("modalEditar")) cerrarModal();
+      if (e.target === document.getElementById("modalEditar")) cerrarModalEditar();
       if (e.target === document.getElementById("modalEliminar")) cerrarModalEliminar();
       if (e.target === document.getElementById("modalAviso")) cerrarModalAviso();
+      if (e.target === document.getElementById("modalInfo")) cerrarModalInfo();
+      if (e.target === document.getElementById("modalHistorial")) cerrarModalHistorial();
     });
   </script>
 </body>
