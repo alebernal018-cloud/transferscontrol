@@ -1060,8 +1060,8 @@
   <header>
     <div class="header-shell">
       <div class="brand-block">
-        <div class="brand-title">TRANSFERCONTROL</div>
-        <div class="brand-subtitle">Control de transferencias bancarias y seguimiento interno</div>
+        <div class="brand-title">CONTROL DE TRANSFERENCIAS</div>
+        <div class="brand-subtitle">designed by ACEVISUALS</div>
       </div>
 
       <div class="top-right" id="topRight" style="display:none;">
@@ -1073,9 +1073,8 @@
         <div id="userAvatar" class="user-avatar" title="Usuario"></div>
 
         <div class="admin-menu" id="adminMenuWrap" style="display:none;">
-          <button class="admin-trigger" onclick="toggleAdminMenu()">
-            Panel
-            <span>▾</span>
+          <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">
+            ⋮
           </button>
 
           <div class="admin-dropdown" id="adminDropdown">
@@ -1102,7 +1101,7 @@
     <div class="card card-accent-primary" id="loginCard">
       <div class="login-kicker">Acceso seguro</div>
       <div class="section-title">Iniciar Sesión</div>
-      <div class="login-subtext">Gestiona registros, seguimiento y auditoría en una interfaz más clara, compacta y profesional.</div>
+      
 
       <label>Correo</label>
       <input type="email" id="email" placeholder="Correo">
@@ -1110,9 +1109,6 @@
       <label>Contraseña</label>
       <input type="password" id="password" placeholder="Contraseña">
 
-      <div class="welcome-note">
-        El nombre simbólico se guarda por correo en Firebase y te seguirá en cualquier dispositivo.
-      </div>
 
       <button class="btn-guardar" onclick="login()">Ingresar</button>
     </div>
@@ -1139,7 +1135,7 @@
 
       <div class="card card-accent-primary">
         <div class="section-title">Registrar nueva transferencia</div>
-        <div class="summary-note">Completa los datos principales del movimiento. Los campos están pensados para lectura rápida y carga más cómoda.</div>
+        <div class="summary-note">Ingresa los datos disponibles y guarda la transferencia cuando esté lista.</div>
 
         <div class="grid">
           <div>
