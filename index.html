@@ -2129,14 +2129,19 @@
     }
 
     async function guardarUsuarioApp(email, nombre, extra = {}) {
-      const id = email.toLowerCase();
-      await setDoc(doc(db, "usuarios_app", id), {
-        email,
+      const id = String(email || "").toLowerCase();
+      const payload = {
+        email: id,
         nombreSimbolico: nombre,
-        role: extra.role || currentUserRole || obtenerRolDefault(email),
         ultimoAcceso: extra.ultimoAcceso || new Date().toISOString(),
         ultimaActividad: extra.ultimaActividad || new Date().toISOString()
-      }, { merge: true });
+      };
+
+      if (extra.role) {
+        payload.role = extra.role;
+      }
+
+      await setDoc(doc(db, "usuarios_app", id), payload, { merge: true });
     }
 
     async function registrarActividadUsuario() {
@@ -2169,11 +2174,16 @@
         nombre = String(nombre).trim();
       }
 
-      await guardarUsuarioApp(currentUserEmail, nombre, {
-        role: currentUserRole,
+      const extra = {
         ultimoAcceso: new Date().toISOString(),
         ultimaActividad: new Date().toISOString()
-      });
+      };
+
+      if (!perfil?.role) {
+        extra.role = currentUserRole;
+      }
+
+      await guardarUsuarioApp(currentUserEmail, nombre, extra);
 
       return nombre;
     }
@@ -2760,7 +2770,7 @@
     };
 
     window.login = async function() {
-      const email = document.getElementById("email").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
       const password = document.getElementById("password").value.trim();
 
       if (!email || !password) {
@@ -3215,22 +3225,28 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentUserEmail = user.email || "";
-        currentUserRole = obtenerRolDefault(currentUserEmail);
+        try {
+          currentUserEmail = String(user.email || "").toLowerCase();
+          currentUserRole = obtenerRolDefault(currentUserEmail);
 
-        currentUserName = await obtenerONombreUsuario();
-        actualizarAvatar(currentUserName);
+          currentUserName = await obtenerONombreUsuario();
+          actualizarAvatar(currentUserName);
 
-        document.getElementById("loginCard").style.display = "none";
-        document.getElementById("panel").style.display = "block";
-        document.getElementById("topRight").style.display = "flex";
-        document.getElementById("systemStatus").style.display = "inline-flex";
-        applyRoleVisibility();
+          document.getElementById("loginCard").style.display = "none";
+          document.getElementById("panel").style.display = "block";
+          document.getElementById("topRight").style.display = "flex";
+          document.getElementById("systemStatus").style.display = "inline-flex";
+          applyRoleVisibility();
 
-        await registrarActividadUsuario();
-        iniciarListenerTransferencias();
-        iniciarListenerHistorial();
-        iniciarListenerUsuarios();
+          await registrarActividadUsuario();
+          iniciarListenerTransferencias();
+          iniciarListenerHistorial();
+          iniciarListenerUsuarios();
+        } catch (error) {
+          console.error("Error post-login:", error);
+          alert("Error después del login: " + error.code + " | " + error.message);
+          await signOut(auth);
+        }
       } else {
         currentUserEmail = "";
         currentUserName = "";
