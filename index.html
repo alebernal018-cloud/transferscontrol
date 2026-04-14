@@ -4,11 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TRANSFERCONTROL</title>
- <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=1">
-<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=1">
-<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=1">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1">
-<link rel="shortcut icon" href="favicon-32.png?v=1">
 
   <style>
     * {
@@ -632,10 +627,70 @@
 
     .table-wrapper {
       overflow-x: auto;
-      overflow-y: visible;
+      overflow-y: auto;
+      max-height: 620px;
       border: 1px solid var(--border);
       border-radius: 18px;
       background: rgba(255,255,255,0.015);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(111,70,255,0.55) rgba(255,255,255,0.05);
+    }
+
+    .table-wrapper::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(111,70,255,0.5);
+      border-radius: 999px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: rgba(111,70,255,0.68);
+    }
+
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-info {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-page {
+      background: linear-gradient(180deg, #242431, #1d1d29);
+      color: #f2f2f2;
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      min-width: 84px;
+    }
+
+    .btn-page:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      filter: none !important;
     }
 
     table {
@@ -1585,6 +1640,14 @@
             <tbody id="tablaBody"></tbody>
           </table>
         </div>
+
+        <div class="pagination-bar" id="paginationBar">
+          <div class="pagination-info" id="paginationInfo">Mostrando 0 de 0</div>
+          <div class="pagination-controls">
+            <button type="button" class="btn-page" id="btnPrevPage" onclick="cambiarPagina(-1)">Anterior</button>
+            <button type="button" class="btn-page" id="btnNextPage" onclick="cambiarPagina(1)">Siguiente</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1863,6 +1926,8 @@
     let currentUserEmail = "";
     let currentUserName = "";
     let snapshotInicialCargado = false;
+    let paginaActual = 1;
+    const REGISTROS_POR_PAGINA = 25;
 
 
     const ROLE_PERMISSIONS = {
@@ -2782,6 +2847,7 @@
     };
 
     window.setFiltroEstado = function(estado) {
+      paginaActual = 1;
       filtroEstadoActual = estado;
 
       document.getElementById("filtroTodas").classList.remove("active");
@@ -2796,6 +2862,7 @@
     };
 
     window.limpiarFiltros = function() {
+      paginaActual = 1;
       document.getElementById("buscar").value = "";
       document.getElementById("filtroMes").value = "";
       document.getElementById("filtroAnio").value = "";
@@ -3204,12 +3271,11 @@
       menu.classList.add("open");
     };
 
-    window.renderTabla = function() {
+    
+    function obtenerListaFiltrada() {
       const filtro = document.getElementById("buscar").value.toLowerCase();
       const filtroMes = document.getElementById("filtroMes").value;
       const filtroAnio = document.getElementById("filtroAnio").value;
-      const tbody = document.getElementById("tablaBody");
-      tbody.innerHTML = "";
 
       const listaFiltrada = transferencias.filter(t => {
         const coincideBusqueda =
@@ -3223,26 +3289,57 @@
           (t.createdByName + "").toLowerCase().includes(filtro) ||
           (t.updatedByName + "").toLowerCase().includes(filtro);
 
-        const coincideEstado =
-          filtroEstadoActual === "Todas" ||
-          t.estado === filtroEstadoActual;
+        const coincideEstado = filtroEstadoActual === "Todas" || t.estado === filtroEstadoActual;
 
         let coincideFecha = true;
-
         if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
           const anio = t.fecha.substring(0, 4);
           const mes = t.fecha.substring(5, 7);
-
           if (filtroAnio && anio !== filtroAnio) coincideFecha = false;
           if (filtroMes && mes !== filtroMes) coincideFecha = false;
-        } else {
-          if (filtroAnio || filtroMes) coincideFecha = false;
+        } else if (filtroAnio || filtroMes) {
+          coincideFecha = false;
         }
 
         return coincideBusqueda && coincideEstado && coincideFecha;
       });
 
-      const listaOrdenada = ordenarTransferenciasInteligente(listaFiltrada);
+      return ordenarTransferenciasInteligente(listaFiltrada);
+    }
+
+    function actualizarPaginacion(total) {
+      const totalPaginas = Math.max(1, Math.ceil(total / REGISTROS_POR_PAGINA));
+      if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+      if (paginaActual < 1) paginaActual = 1;
+
+      const inicio = total === 0 ? 0 : ((paginaActual - 1) * REGISTROS_POR_PAGINA) + 1;
+      const fin = Math.min(total, paginaActual * REGISTROS_POR_PAGINA);
+
+      const info = document.getElementById("paginationInfo");
+      const prev = document.getElementById("btnPrevPage");
+      const next = document.getElementById("btnNextPage");
+      const bar = document.getElementById("paginationBar");
+
+      if (bar) bar.style.display = total > REGISTROS_POR_PAGINA ? "flex" : "none";
+      if (info) info.textContent = `Mostrando ${inicio}-${fin} de ${total}`;
+      if (prev) prev.disabled = paginaActual <= 1;
+      if (next) next.disabled = paginaActual >= totalPaginas;
+    }
+
+    window.cambiarPagina = function(direccion) {
+      paginaActual += direccion;
+      renderTabla(false);
+      const wrap = document.querySelector('.table-wrapper');
+      if (wrap) wrap.scrollTop = 0;
+    };
+
+    window.renderTabla = function(resetPagina = true) {
+      const tbody = document.getElementById("tablaBody");
+      tbody.innerHTML = "";
+
+      const listaOrdenada = obtenerListaFiltrada();
+      if (resetPagina) paginaActual = 1;
+      actualizarPaginacion(listaOrdenada.length);
 
       if (listaOrdenada.length === 0) {
         tbody.innerHTML = `
@@ -3255,8 +3352,12 @@
         return;
       }
 
+      const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+      const fin = inicio + REGISTROS_POR_PAGINA;
+      const pagina = listaOrdenada.slice(inicio, fin);
+
       const rows = [];
-      listaOrdenada.forEach((t) => {
+      pagina.forEach((t) => {
         const estadoBadge = t.estado === "Aplicada"
           ? `<span class="status-badge status-aplicada">Aplicada</span>`
           : `<span class="status-badge status-pendiente">Pendiente</span>`;
