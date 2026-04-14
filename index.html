@@ -184,6 +184,38 @@
       box-shadow: 0 10px 22px rgba(0,0,0,0.24);
     }
 
+    .role-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #e8eaf7;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .role-indicator.role-admin {
+      background: rgba(84,22,219,0.18);
+      color: #e2d8ff;
+    }
+
+    .role-indicator.role-user {
+      background: rgba(76,175,80,0.12);
+      color: #a9efb0;
+    }
+
+    .role-indicator.role-consultor {
+      background: rgba(255,179,0,0.12);
+      color: #ffd76f;
+    }
+
     .btn-logout {
       background: linear-gradient(180deg, #ff5a56, #d32f2f);
       padding: 10px 14px;
@@ -901,6 +933,16 @@
       flex-wrap: wrap;
     }
 
+    .actions-row.equal-actions > * {
+      flex: 1 1 0;
+      min-width: 160px;
+      margin-top: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+    }
+
     .info-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1414,7 +1456,7 @@
     textarea,
     .modal,
     .modal-content {
-      transition-duration: 0.12s !important;
+      transition-duration: 0.08s !important;
     }
 
     .modal {
@@ -1465,6 +1507,7 @@
         </div>
 
         <div id="userAvatar" class="user-avatar" title="Usuario"></div>
+        <div id="roleIndicator" class="role-indicator" style="display:none;">USER</div>
 
         <div class="admin-menu" id="adminMenuWrap" style="display:none;">
           <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">⋮</button>
@@ -1692,7 +1735,7 @@
         </div>
       </div>
 
-      <div class="actions-row">
+      <div class="actions-row equal-actions">
         <button class="btn-guardar" id="btnGuardarCambios" data-loading-text="Guardando..." data-success-text="Guardado ✓" onclick="guardarCambios()">Guardar Cambios</button>
         <button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
       </div>
@@ -1954,6 +1997,22 @@
       return "Usuario";
     }
 
+    function obtenerTextoRolVisual(role) {
+      if (role === "admin") return "ADMIN";
+      if (role === "consultor") return "CONSULTOR";
+      return "USER";
+    }
+
+    function actualizarIndicadorRol() {
+      const badge = document.getElementById("roleIndicator");
+      if (!badge) return;
+      const role = currentUserRole || "user";
+      badge.className = `role-indicator role-${role}`;
+      badge.textContent = obtenerTextoRolVisual(role);
+      badge.style.display = "inline-flex";
+      badge.title = `Rol actual: ${obtenerEtiquetaRol(role)}`;
+    }
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -2006,6 +2065,8 @@
     function applyRoleVisibility() {
       esAdmin = currentUserRole === "admin";
       document.getElementById("adminMenuWrap").style.display = esAdmin ? "block" : "none";
+
+      actualizarIndicadorRol();
 
       const formCard = document.getElementById("formCard");
       if (formCard) {
@@ -2708,11 +2769,12 @@
 
       try {
         await setDoc(doc(db, "usuarios_app", id), { role: nuevoRol }, { merge: true });
-        showToast(`Rol actualizado a ${obtenerEtiquetaRol(nuevoRol)}.`, "success");
+        showToast(`Rol actualizado a ${obtenerEtiquetaRol(nuevoRol)} correctamente.`, "success");
         if (String(usuario.email || "").toLowerCase() === currentUserEmail.toLowerCase()) {
           currentUserRole = nuevoRol;
           applyRoleVisibility();
           renderTabla();
+          showGlobalPopup("Rol actualizado", `Tu rol ahora es ${obtenerEtiquetaRol(nuevoRol)}.`, formatearFechaHora(new Date().toISOString()));
         }
       } catch (error) {
         console.error("Error al actualizar rol:", error);
@@ -3105,10 +3167,11 @@
           a: nuevoEstado
         });
 
-        showToast("Estado actualizado.", "success");
+        showToast(`Estado cambiado a ${nuevoEstado}.`, "success");
+        showGlobalPopup("Estado actualizado", `La transferencia ahora está ${nuevoEstado}.`, formatearFechaHora(new Date().toISOString()));
       } catch (error) {
         console.error("Error al actualizar estado:", error);
-        showToast("Error estado.", "error");
+        showToast("No se pudo actualizar el estado.", "error");
       }
     };
 
@@ -3143,10 +3206,11 @@
         });
 
         cerrarModalEliminar();
-        showToast("Eliminada.", "success");
+        showToast("Transferencia eliminada correctamente.", "success");
+        showGlobalPopup("Registro eliminado", "La transferencia fue eliminada correctamente.", formatearFechaHora(new Date().toISOString()));
       } catch (error) {
         console.error("Error al eliminar:", error);
-        showToast("Error eliminar.", "error");
+        showToast("No se pudo eliminar la transferencia.", "error");
       }
     };
 
@@ -3273,38 +3337,38 @@
 
     
     function obtenerListaFiltrada() {
-      const filtro = document.getElementById("buscar").value.toLowerCase();
+      const filtro = document.getElementById("buscar").value.toLowerCase().trim();
+      const filtroNumerico = filtro.replace(/,/g, "");
       const filtroMes = document.getElementById("filtroMes").value;
       const filtroAnio = document.getElementById("filtroAnio").value;
 
-      const listaFiltrada = transferencias.filter(t => {
+      return transferencias.filter(t => {
         const coincideBusqueda =
-          (t.cliente + "").toLowerCase().includes(filtro) ||
-          (t.banco + "").toLowerCase().includes(filtro) ||
-          (t.recibo + "").toLowerCase().includes(filtro) ||
-          (t.estado + "").toLowerCase().includes(filtro) ||
-          (t.comentarios + "").toLowerCase().includes(filtro) ||
+          !filtro ||
+          String(t.cliente || "").toLowerCase().includes(filtro) ||
+          String(t.banco || "").toLowerCase().includes(filtro) ||
+          String(t.recibo || "").toLowerCase().includes(filtro) ||
+          String(t.estado || "").toLowerCase().includes(filtro) ||
+          String(t.comentarios || "").toLowerCase().includes(filtro) ||
           formatearMonto(t.monto || 0).includes(filtro) ||
-          (t.monto + "").includes(filtro.replace(/,/g, "")) ||
-          (t.createdByName + "").toLowerCase().includes(filtro) ||
-          (t.updatedByName + "").toLowerCase().includes(filtro);
+          String(t.monto || "").includes(filtroNumerico) ||
+          String(t.createdByName || "").toLowerCase().includes(filtro) ||
+          String(t.updatedByName || "").toLowerCase().includes(filtro);
+
+        if (!coincideBusqueda) return false;
 
         const coincideEstado = filtroEstadoActual === "Todas" || t.estado === filtroEstadoActual;
+        if (!coincideEstado) return false;
 
-        let coincideFecha = true;
-        if (t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) {
-          const anio = t.fecha.substring(0, 4);
-          const mes = t.fecha.substring(5, 7);
-          if (filtroAnio && anio !== filtroAnio) coincideFecha = false;
-          if (filtroMes && mes !== filtroMes) coincideFecha = false;
-        } else if (filtroAnio || filtroMes) {
-          coincideFecha = false;
-        }
+        if (!filtroAnio && !filtroMes) return true;
+        if (!(t.fecha && t.fecha !== "No aplica" && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha))) return false;
 
-        return coincideBusqueda && coincideEstado && coincideFecha;
+        const anio = t.fecha.substring(0, 4);
+        const mes = t.fecha.substring(5, 7);
+        if (filtroAnio && anio !== filtroAnio) return false;
+        if (filtroMes && mes !== filtroMes) return false;
+        return true;
       });
-
-      return ordenarTransferenciasInteligente(listaFiltrada);
     }
 
     function actualizarPaginacion(total) {
@@ -3405,6 +3469,7 @@
 
           currentUserName = await obtenerONombreUsuario();
           actualizarAvatar(currentUserName);
+          actualizarIndicadorRol();
 
           const btnLogin = document.getElementById("btnLogin");
           if (btnLogin) {
@@ -3456,6 +3521,8 @@
         document.getElementById("panel").style.display = "none";
         document.getElementById("topRight").style.display = "none";
         document.getElementById("systemStatus").style.display = "none";
+        const roleIndicator = document.getElementById("roleIndicator");
+        if (roleIndicator) roleIndicator.style.display = "none";
         const readonlyNote = document.getElementById("readonlyNote");
         if (readonlyNote) readonlyNote.remove();
       }
