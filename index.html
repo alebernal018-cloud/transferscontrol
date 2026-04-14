@@ -1197,6 +1197,67 @@
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
+    .dashboard-pro {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .ranking-card {
+      padding-top: 18px;
+    }
+
+    .ranking-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .ranking-item {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .ranking-pos {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .ranking-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ranking-meta {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.45;
+    }
+
+    .table-wrapper.main-table-wrapper {
+      max-height: 68vh;
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+
+    .table-wrapper.main-table-wrapper thead th {
+      top: 0;
+      z-index: 2;
+    }
+
+    .table-wrapper.main-table-wrapper tbody tr:last-child td {
+      border-bottom: none;
+    }
+
     .dash-value-small {
       font-size: 16px;
       line-height: 1.35;
@@ -1366,78 +1427,21 @@
     }
 
     @media (max-width: 1200px) {
-      .dashboard-extended { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .dashboard-extended, .dashboard-pro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .ranking-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 900px) {
-      .dashboard-extended { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-extended, .dashboard-pro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ranking-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (max-width: 560px) {
-      .dashboard-extended { grid-template-columns: 1fr; }
-    }
-
-
-    /* Optimización final ligera */
-    .btn-estado {
-      padding: 6px 10px !important;
-      font-size: 11px !important;
-      min-width: 64px !important;
-      border-radius: 9px !important;
-      line-height: 1.1 !important;
-      box-shadow: none !important;
-    }
-
-    .btn-logout:hover, .btn-secondary:hover, .btn-guardar:hover, .btn-danger:hover,
-    .btn-edit:hover, .btn-estado:hover, .btn-info:hover, .btn-filter:hover,
-    .btn-clear-filters:hover, .dash-card:hover {
-      transform: none !important;
-      filter: none !important;
-      box-shadow: none !important;
-    }
-
-    button,
-    input,
-    select,
-    textarea,
-    .modal,
-    .modal-content,
-    .dash-card,
-    tbody tr,
-    .admin-dropdown,
-    .row-dropdown,
-    .global-popup,
-    .toast,
-    .firma-ac3,
-    #loginCard::after {
-      transition: none !important;
-      animation: none !important;
-    }
-
-    header,
-    .modal,
-    .modal-content,
-    .global-popup,
-    .admin-dropdown,
-    .firma-ac3 {
-      backdrop-filter: none !important;
-    }
-
-    #loginCard::after {
-      display: none !important;
-    }
-
-    tbody tr:hover {
-      box-shadow: none !important;
+      .dashboard-extended, .dashboard-pro { grid-template-columns: 1fr; }
+      .ranking-list { grid-template-columns: 1fr; }
     }
 
   </style>
-
-<style>
-#estado, select{background:#171721;color:#fff;}
-#estado option, select option{background:#171721;color:#fff;}
-</style>
-
 </head>
 
 <body>
@@ -1495,7 +1499,7 @@
     </div>
 
     <div id="panel" style="display:none;">
-      <div class="dashboard dashboard-extended">
+      <div class="dashboard dashboard-extended dashboard-pro">
         <div class="dash-card is-total">
           <div class="dash-label">Total registros</div>
           <div class="dash-value" id="dashTotal">0</div>
@@ -1515,6 +1519,28 @@
         <div class="dash-card is-amount">
           <div class="dash-label">Última transferencia</div>
           <div class="dash-value dash-value-small" id="dashUltimaTransferencia">—</div>
+        </div>
+        <div class="dash-card is-pending">
+          <div class="dash-label"></div>
+          <div class="dash-value" id="dashPendientesHoy">0</div>
+        </div>
+        <div class="dash-card is-success">
+          <div class="dash-label"></div>
+          <div class="dash-value" id="dashAplicadoHoy">$0.00</div>
+        </div>
+        <div class="dash-card is-pending">
+          <div class="dash-label"></div>
+          <div class="dash-value" id="dashFaltaAplicar">$0.00</div>
+        </div>
+      </div>
+
+      <div class="card card-flat ranking-card">
+        <div class="toolbar-top">
+          <div class="section-title" style="margin:0; padding-bottom:0; border-bottom:none;"></div>
+          <div class="summary-note" style="margin:0;">Top por monto acumulado</div>
+        </div>
+        <div class="ranking-list" id="rankingClientes">
+          <div class="table-empty">Aún no hay datos suficientes.</div>
         </div>
       </div>
 
@@ -1612,7 +1638,7 @@
           </div>
         </div>
 
-        <div class="table-wrapper">
+        <div class="table-wrapper main-table-wrapper">
           <table>
             <thead>
               <tr>
@@ -2299,16 +2325,83 @@
       avatar.setAttribute("aria-label", nombre);
     }
 
+    function esFechaHoy(fechaISO) {
+      if (!fechaISO || fechaISO === "No aplica") return false;
+      const hoy = new Date();
+      const yyyy = hoy.getFullYear();
+      const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+      const dd = String(hoy.getDate()).padStart(2, "0");
+      return String(fechaISO).slice(0, 10) === `${yyyy}-${mm}-${dd}`;
+    }
+
+    function compareTransferencias(a, b) {
+      const prioridadEstado = (estado) => estado === "Pendiente" ? 0 : 1;
+      const estadoDiff = prioridadEstado(a.estado) - prioridadEstado(b.estado);
+      if (estadoDiff !== 0) return estadoDiff;
+
+      const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "";
+      const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "";
+      if (fechaA !== fechaB) return fechaB.localeCompare(fechaA);
+
+      const createdA = String(a.createdAt || "");
+      const createdB = String(b.createdAt || "");
+      if (createdA !== createdB) return createdB.localeCompare(createdA);
+
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    }
+
+    function renderRankingClientes() {
+      const container = document.getElementById("rankingClientes");
+      if (!container) return;
+
+      const mapa = new Map();
+      transferencias.forEach(t => {
+        const nombre = String(t.cliente || "Sin cliente").trim() || "Sin cliente";
+        const prev = mapa.get(nombre) || { total: 0, count: 0 };
+        prev.total += Number(t.monto) || 0;
+        prev.count += 1;
+        mapa.set(nombre, prev);
+      });
+
+      const top = [...mapa.entries()]
+        .map(([nombre, data]) => ({ nombre, ...data }))
+        .sort((a, b) => b.total - a.total || b.count - a.count || a.nombre.localeCompare(b.nombre))
+        .slice(0, 5);
+
+      if (!top.length) {
+        container.innerHTML = '<div class="table-empty">Aún no hay datos suficientes.</div>';
+        return;
+      }
+
+      container.innerHTML = top.map((item, index) => `
+        <div class="ranking-item">
+          <div class="ranking-pos">#${index + 1}</div>
+          <div class="ranking-name" title="${escapeHtml(item.nombre)}">${escapeHtml(item.nombre)}</div>
+          <div class="ranking-meta">
+            Total: $${formatearMonto(item.total)}<br>
+            Registros: ${item.count}
+          </div>
+        </div>
+      `).join("");
+    }
+
     function actualizarDashboard() {
       const total = transferencias.length;
       const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
       const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
       const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
-      const ultimaTransferencia = [...transferencias]
-        .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))[0];
+      const pendientesHoy = transferencias.filter(t => t.estado === "Pendiente" && esFechaHoy(t.fecha)).length;
+      const aplicadoHoy = transferencias
+        .filter(t => t.estado === "Aplicada" && esFechaHoy(t.fecha))
+        .reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+      const faltaAplicar = transferencias
+        .filter(t => t.estado === "Pendiente")
+        .reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+
+      const ultimaTransferencia = [...transferencias].sort(compareTransferencias)[0];
 
       const ultimaTexto = ultimaTransferencia
-        ? `${ultimaTransferencia.cliente || "Sin cliente"} · $${formatearMonto(ultimaTransferencia.monto || 0)}`
+        ? `${ultimaTransferencia.cliente || "Sin cliente"} · ${formatearFecha(ultimaTransferencia.fecha)}`
         : "—";
 
       document.getElementById("dashTotal").textContent = total;
@@ -2316,7 +2409,11 @@
       document.getElementById("dashAplicadas").textContent = aplicadas;
       document.getElementById("dashMonto").textContent = `$${formatearMonto(montoTotal)}`;
       document.getElementById("dashUltimaTransferencia").textContent = ultimaTexto;
+      document.getElementById("dashPendientesHoy").textContent = pendientesHoy;
+      document.getElementById("dashAplicadoHoy").textContent = `$${formatearMonto(aplicadoHoy)}`;
+      document.getElementById("dashFaltaAplicar").textContent = `$${formatearMonto(faltaAplicar)}`;
       cargarSugerenciasClientes();
+      renderRankingClientes();
     }
 
     function llenarFiltroAnios() {
@@ -2383,13 +2480,21 @@
       return String(valor || "").trim().toLowerCase();
     }
 
-    function detectarDuplicadoRecibo(data, excluirId = null) {
+    function detectarDuplicado(data, excluirId = null) {
+      const cliente = normalizarCampo(data.cliente);
+      const monto = Number(data.monto || 0);
+      const fecha = data.fecha || "No aplica";
       const recibo = normalizarCampo(data.recibo);
+      const banco = normalizarCampo(data.banco);
 
       return transferencias.find(t => {
         if (excluirId && t.id === excluirId) return false;
 
         const tRecibo = normalizarCampo(t.recibo);
+        const tCliente = normalizarCampo(t.cliente);
+        const tBanco = normalizarCampo(t.banco);
+        const tFecha = t.fecha || "No aplica";
+        const tMonto = Number(t.monto || 0);
 
         const mismoRecibo =
           recibo &&
@@ -2398,35 +2503,16 @@
           tRecibo !== "no aplica" &&
           tRecibo === recibo;
 
-        return mismoRecibo;
-      });
-    }
-
-    function detectarCoincidenciaSimilar(data, excluirId = null) {
-      const cliente = normalizarCampo(data.cliente);
-      const monto = Number(data.monto || 0);
-      const fecha = data.fecha || "No aplica";
-      const banco = normalizarCampo(data.banco);
-
-      return transferencias.find(t => {
-        if (excluirId && t.id === excluirId) return false;
-
-        const tCliente = normalizarCampo(t.cliente);
-        const tBanco = normalizarCampo(t.banco);
-        const tFecha = t.fecha || "No aplica";
-        const tMonto = Number(t.monto || 0);
-
-        return (
+        const mismaCombinacion =
           cliente === tCliente &&
           monto === tMonto &&
           fecha === tFecha &&
           banco === tBanco &&
           cliente !== "" &&
-          cliente !== "no aplica" &&
           banco !== "" &&
-          banco !== "no aplica" &&
-          fecha !== "No aplica"
-        );
+          fecha !== "No aplica";
+
+        return mismoRecibo || mismaCombinacion;
       });
     }
 
@@ -2454,11 +2540,7 @@
         transferencias.push({ id: docu.id, ...docu.data() });
       });
 
-      transferencias.sort((a, b) => {
-        const fechaA = (a.fecha && a.fecha !== "No aplica") ? a.fecha : "9999-12-31";
-        const fechaB = (b.fecha && b.fecha !== "No aplica") ? b.fecha : "9999-12-31";
-        return fechaA.localeCompare(fechaB);
-      });
+      transferencias.sort(compareTransferencias);
 
       actualizarDashboard();
       llenarFiltroAnios();
@@ -2998,18 +3080,13 @@
         comentarios
       };
 
-      const duplicado = detectarDuplicadoRecibo(dataNueva);
-      const coincidenciaSimilar = detectarCoincidenciaSimilar(dataNueva);
+      const duplicado = detectarDuplicado(dataNueva);
       if (duplicado) {
         abrirModalAviso(
-          "Recibo duplicado",
-          "No se puede guardar porque el N° de recibo ya existe en otra transferencia."
+          "Registro duplicado",
+          "No se puede guardar porque esta transferencia ya está registrada."
         );
         return;
-      }
-
-      if (coincidenciaSimilar) {
-        showToast("Aviso: existe una transferencia similar. Se permitirá guardar.", "warn");
       }
 
       const boton = document.getElementById("btnGuardarTransferencia");
@@ -3169,18 +3246,13 @@
         comentarios
       };
 
-      const duplicado = detectarDuplicadoRecibo(dataEditada, idEditando);
-      const coincidenciaSimilar = detectarCoincidenciaSimilar(dataEditada, idEditando);
+      const duplicado = detectarDuplicado(dataEditada, idEditando);
       if (duplicado) {
         abrirModalAviso(
-          "Recibo duplicado",
-          "No se puede guardar porque el N° de recibo ya existe en otra transferencia."
+          "Registro duplicado",
+          "No se puede guardar porque esta transferencia ya está registrada."
         );
         return;
-      }
-
-      if (coincidenciaSimilar) {
-        showToast("Aviso: existe una transferencia similar. Se guardarán los cambios igualmente.", "warn");
       }
 
       try {
@@ -3273,6 +3345,8 @@
 
         return coincideBusqueda && coincideEstado && coincideFecha;
       });
+
+      listaFiltrada.sort(compareTransferencias);
 
       if (listaFiltrada.length === 0) {
         tbody.innerHTML = `
