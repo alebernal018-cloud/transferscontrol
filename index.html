@@ -1067,7 +1067,7 @@
       animation: fadeRise 0.45s ease both;
     }
 
-    .card:hover, .dash-card:hover {
+    .dash-card:hover {
       transform: translateY(-2px);
     }
 
@@ -1328,7 +1328,9 @@
       animation: none !important;
     }
 
-    .card:hover, .dash-card:hover, .btn-logout:hover, .btn-secondary:hover,
+    /* NOTA: .card:hover NO lleva transform porque causa que position:fixed
+       hijos (row-dropdown) se posicionen relativo a la card en vez del viewport */
+    .dash-card:hover, .btn-logout:hover, .btn-secondary:hover,
     .btn-guardar:hover, .btn-danger:hover, .btn-edit:hover, .btn-estado:hover,
     .btn-info:hover, .btn-filter:hover, .btn-clear-filters:hover {
       transform: translateY(-1px);
@@ -1543,7 +1545,7 @@
               id="buscar"
               class="search-input"
               placeholder="Buscar por cliente, banco, recibo, estado o monto..."
-              onkeyup="renderTabla()"
+              onkeyup="renderTablaDebounced()"
             >
 
             <button class="btn-clear-filters" onclick="limpiarFiltros()">Limpiar filtros</button>
@@ -1956,6 +1958,16 @@
       datalist.innerHTML = nombres.map(nombre => `<option value="${escapeHtml(nombre)}"></option>`).join("");
     }
 
+    // Debounce para evitar re-renders en cada tecla del buscador
+    function debounce(fn, delay) {
+      let timer;
+      return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+    window.renderTablaDebounced = debounce(() => renderTabla(), 180);
+
     function configurarAtajosFormulario() {
       ["cliente","monto","fecha","estado","recibo","fechaRecibo","banco","comentarios"].forEach((id) => {
         const el = document.getElementById(id);
@@ -2133,7 +2145,12 @@
         payload.role = extra.role;
       }
 
-      await setDoc(doc(db, "usuarios_app", id), payload, { merge: true });
+      // Si Firebase deniega la escritura (usuario no-admin), no interrumpir el login
+      try {
+        await setDoc(doc(db, "usuarios_app", id), payload, { merge: true });
+      } catch (err) {
+        console.warn("No se pudo guardar perfil de usuario:", err.code || err.message);
+      }
     }
 
     async function registrarActividadUsuario() {
@@ -2416,7 +2433,8 @@
         (error) => {
           console.error("Error en tiempo real:", error);
           setSystemStatus("offline", "Sin conexión");
-          alert("Error al sincronizar datos: " + error.code + " | " + error.message);
+          showToast("Error de sincronización: " + (error.code || error.message), "error");
+          console.error("Error al sincronizar datos:", error);
         }
       );
     }
@@ -2517,16 +2535,18 @@
         return;
       }
 
+      const rows = [];
       historial.forEach(item => {
-        tbody.innerHTML += `
+        rows.push(`
           <tr>
             <td>${formatearFechaHora(item.fechaHora)}</td>
             <td class="history-action">${traducirAccion(item.accion)}</td>
             <td>${item.usuarioNombre || "Usuario"}<br><span style="color:#8f8f8f;font-size:11px;">${item.usuarioEmail || "No aplica"}</span></td>
             <td class="history-detail">${detalleHistorialTexto(item)}</td>
           </tr>
-        `;
+        `);
       });
+      tbody.innerHTML = rows.join("");
     }
 
     function renderUsuarios() {
@@ -2546,10 +2566,11 @@
         return;
       }
 
+      const rows = [];
       usuariosApp.forEach(u => {
         const role = u.role || obtenerRolDefault(u.email);
         const isMainAdmin = String(u.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
-        tbody.innerHTML += `
+        rows.push(`
           <tr>
             <td>${u.email || "No aplica"}</td>
             <td>${u.nombreSimbolico || "No aplica"}</td>
@@ -2568,8 +2589,9 @@
                 </div>`}
             </td>
           </tr>
-        `;
+        `);
       });
+      tbody.innerHTML = rows.join("");
     }
 
     window.actualizarRolUsuario = async function(id) {
@@ -2649,8 +2671,9 @@
 
       lista.sort((a, b) => a.nombre.localeCompare(b.nombre));
 
+      const auditRows = [];
       lista.forEach(item => {
-        tbody.innerHTML += `
+        auditRows.push(`
           <tr>
             <td>${item.nombre}</td>
             <td>${item.email}</td>
@@ -2659,8 +2682,9 @@
             <td>${item.cambio_estado}</td>
             <td>${item.eliminar}</td>
           </tr>
-        `;
+        `);
       });
+      tbody.innerHTML = auditRows.join("");
     }
 
     window.toggleAdminMenu = function() {
@@ -2869,7 +2893,7 @@
       link.click();
       document.body.removeChild(link);
 
-      registrarActividadUsuario();
+      registrarActividadUsuario().catch(e => console.warn("Actividad CSV:", e));
       showToast("CSV exportado.", "success");
     };
 
@@ -3119,7 +3143,8 @@
       cerrarMenusFilas();
       if (estabaAbierto) return;
 
-      const rect = event.currentTarget.getBoundingClientRect();
+      const anchor = event.target.closest('.btn-menu-row') || event.currentTarget || event.target;
+      const rect = anchor.getBoundingClientRect();
       const menuWidth = 190;
       const menuHeight = 140;
       const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
@@ -3179,6 +3204,7 @@
         return;
       }
 
+      const rows = [];
       listaFiltrada.forEach((t) => {
         const estadoBadge = t.estado === "Aplicada"
           ? `<span class="status-badge status-aplicada">Aplicada</span>`
@@ -3194,7 +3220,7 @@
           can("delete") ? `<button type="button" onclick="abrirModalEliminar('${t.id}'); cerrarMenusFilas();">Eliminar</button>` : ""
         ].filter(Boolean).join("");
 
-        tbody.innerHTML += `
+        rows.push(`
           <tr>
             <td><div class="client-cell">${escapeHtml(t.cliente || "No aplica")}</div></td>
             <td><div class="money-cell">$${formatearMonto(t.monto)}</div></td>
@@ -3214,8 +3240,9 @@
               </div>
             </td>
           </tr>
-        `;
+        `);
       });
+      tbody.innerHTML = rows.join("");
     };
 
     onAuthStateChanged(auth, async (user) => {
