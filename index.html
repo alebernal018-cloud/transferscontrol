@@ -2179,10 +2179,6 @@
         ultimaActividad: new Date().toISOString()
       };
 
-      if (!perfil?.role) {
-        extra.role = currentUserRole;
-      }
-
       await guardarUsuarioApp(currentUserEmail, nombre, extra);
 
       return nombre;
