@@ -20,7 +20,7 @@
 
     header {
       background: #161616;
-      padding: 15px;
+      padding: 13px 16px;
       text-align: center;
       font-size: 18px;
       font-weight: bold;
@@ -28,12 +28,13 @@
       position: relative;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      min-height: 60px;
     }
 
     .top-right {
       position: absolute;
       right: 15px;
-      top: 10px;
+      top: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -45,7 +46,7 @@
     .system-status {
       position: absolute;
       left: 16px;
-      top: 14px;
+      top: 12px;
       display: none;
       align-items: center;
       gap: 8px;
@@ -152,31 +153,91 @@
       background: #333;
     }
 
+    .admin-menu {
+      position: relative;
+    }
+
+    .admin-trigger {
+      background: #232323;
+      color: #f2f2f2;
+      padding: 8px 12px;
+      font-size: 12px;
+      border: 1px solid #444;
+      border-radius: 10px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-trigger:hover {
+      background: #303030;
+    }
+
+    .admin-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 200px;
+      background: rgba(24, 24, 24, 0.98);
+      border: 1px solid #343434;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(10px);
+      display: none;
+      z-index: 4000;
+    }
+
+    .admin-dropdown.open {
+      display: block;
+    }
+
+    .admin-dropdown button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: #f2f2f2;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .admin-dropdown button:hover {
+      background: #242424;
+      border-color: #373737;
+    }
+
     .container {
       max-width: 1320px;
       margin: auto;
-      padding: 20px;
+      padding: 18px 20px 20px;
     }
 
     .card {
       background: #161616;
       padding: 18px;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid #333;
       margin-bottom: 20px;
       overflow: hidden;
     }
 
-    h3 {
-      margin-top: 0;
-      margin-bottom: 14px;
+    .section-title {
+      margin: 0 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 18px;
+      font-weight: 700;
     }
 
     label {
       font-size: 13px;
-      color: #ccc;
+      color: #ddd;
       display: block;
-      margin-top: 14px;
+      margin-top: 12px;
       margin-bottom: 5px;
     }
 
@@ -205,15 +266,15 @@
     }
 
     textarea {
-      min-height: 68px;
-      max-height: 120px;
+      min-height: 56px;
+      max-height: 100px;
       resize: vertical;
     }
 
     .grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 45px;
+      gap: 34px;
       align-items: start;
     }
 
@@ -224,7 +285,7 @@
     @media (max-width: 980px) {
       .grid {
         grid-template-columns: 1fr;
-        gap: 25px;
+        gap: 20px;
       }
 
       .top-right {
@@ -258,7 +319,7 @@
       color: white;
       padding: 10px 18px;
       font-size: 14px;
-      margin-top: 20px;
+      margin-top: 18px;
       width: auto;
       display: inline-block;
     }
@@ -341,15 +402,22 @@
       background: #5416DB;
       border-color: #5416DB;
       color: #fff;
+      box-shadow: 0 6px 16px rgba(84, 22, 219, 0.2);
     }
 
     .toolbar {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-top {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
     }
 
     .toolbar-left, .toolbar-right {
@@ -357,6 +425,17 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #1a1a1a;
+      border: 1px solid #2f2f2f;
+      border-radius: 12px;
+      padding: 10px;
     }
 
     .search-input {
@@ -398,9 +477,9 @@
     }
 
     .dash-card {
-      background: #1c1c1c;
+      background: linear-gradient(180deg, #1a1a1a, #171717);
       border: 1px solid #313131;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 14px;
     }
 
@@ -430,18 +509,21 @@
 
     .table-wrapper {
       overflow-x: auto;
+      border: 1px solid #2d2d2d;
+      border-radius: 12px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      margin-top: 0;
       font-size: 13px;
       min-width: 1120px;
+      overflow: hidden;
     }
 
     th, td {
-      border: 1px solid #333;
+      border: 1px solid #2f2f2f;
       padding: 10px;
       text-align: left;
       vertical-align: top;
@@ -450,7 +532,7 @@
     th {
       background: #202020;
       font-size: 12px;
-      color: #ccc;
+      color: #d2d2d2;
       position: sticky;
       top: 0;
       z-index: 1;
@@ -461,32 +543,36 @@
     }
 
     tbody tr {
-      transition: background-color 0.18s ease;
+      transition: background-color 0.16s ease, transform 0.16s ease;
     }
 
     tbody tr:hover {
-      background: #1d1d1d;
+      background: #1b1b1b;
     }
 
     .status-badge {
-      display: inline-block;
-      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 9px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 11px;
+      font-weight: 700;
       line-height: 1;
+      letter-spacing: 0.2px;
+      min-height: 22px;
     }
 
     .status-aplicada {
-      background: rgba(76, 175, 80, 0.16);
-      color: #72d876;
-      border: 1px solid rgba(76, 175, 80, 0.35);
+      background: rgba(76, 175, 80, 0.12);
+      color: #7ae182;
+      border: 1px solid rgba(76, 175, 80, 0.28);
     }
 
     .status-pendiente {
-      background: rgba(255, 179, 0, 0.14);
-      color: #ffca4d;
-      border: 1px solid rgba(255, 179, 0, 0.35);
+      background: rgba(255, 179, 0, 0.12);
+      color: #ffd05a;
+      border: 1px solid rgba(255, 179, 0, 0.28);
     }
 
     .table-actions {
@@ -499,6 +585,7 @@
       max-width: 220px;
       white-space: normal;
       word-break: break-word;
+      color: #d0d0d0;
     }
 
     .welcome-note {
@@ -731,6 +818,16 @@
       .info-grid {
         grid-template-columns: 1fr;
       }
+
+      .toolbar-top,
+      .filters-bar {
+        align-items: stretch;
+      }
+
+      .search-input,
+      .filter-select {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -746,11 +843,22 @@
 
     <div class="top-right" id="topRight" style="display:none;">
       <div id="userAvatar" class="user-avatar" title="Usuario"></div>
-      <button id="btnUsuarios" class="btn-secondary" onclick="abrirModalUsuarios()">Usuarios</button>
-      <button id="btnAuditoria" class="btn-secondary" onclick="abrirModalAuditoria()">Auditoría</button>
-      <button id="btnHistorial" class="btn-secondary" onclick="abrirModalHistorial()">Historial</button>
-      <button id="btnExportar" class="btn-secondary" onclick="exportarCSV()">Exportar CSV</button>
-      <button id="btnRespaldo" class="btn-secondary" onclick="crearRespaldo()">Crear respaldo</button>
+
+      <div class="admin-menu" id="adminMenuWrap" style="display:none;">
+        <button class="admin-trigger" onclick="toggleAdminMenu()">
+          Panel
+          <span>▾</span>
+        </button>
+
+        <div class="admin-dropdown" id="adminDropdown">
+          <button onclick="abrirModalUsuarios(); cerrarAdminMenu();">Usuarios</button>
+          <button onclick="abrirModalAuditoria(); cerrarAdminMenu();">Auditoría</button>
+          <button onclick="abrirModalHistorial(); cerrarAdminMenu();">Historial</button>
+          <button onclick="exportarCSV(); cerrarAdminMenu();">Exportar CSV</button>
+          <button onclick="crearRespaldo(); cerrarAdminMenu();">Crear respaldo</button>
+        </div>
+      </div>
+
       <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
   </header>
@@ -763,7 +871,7 @@
 
   <div class="container">
     <div class="card" id="loginCard">
-      <h3>Iniciar Sesión</h3>
+      <div class="section-title">Iniciar Sesión</div>
 
       <label>Correo</label>
       <input type="email" id="email" placeholder="Correo">
@@ -799,7 +907,7 @@
       </div>
 
       <div class="card">
-        <h3>Registrar nueva transferencia</h3>
+        <div class="section-title">Registrar nueva transferencia</div>
 
         <div class="grid">
           <div>
@@ -807,7 +915,7 @@
             <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
 
             <label>Monto ($)</label>
-            <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)">
+            <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)" onblur="formatearInputMontoBlur(this)">
 
             <label>Fecha recibida</label>
             <input type="date" id="fecha">
@@ -839,14 +947,16 @@
 
       <div class="card">
         <div class="toolbar">
-          <div class="toolbar-left">
-            <h3 style="margin:0;">Listado</h3>
-            <button class="btn-filter active" id="filtroTodas" onclick="setFiltroEstado('Todas')">Todas</button>
-            <button class="btn-filter" id="filtroPendiente" onclick="setFiltroEstado('Pendiente')">Pendientes</button>
-            <button class="btn-filter" id="filtroAplicada" onclick="setFiltroEstado('Aplicada')">Aplicadas</button>
+          <div class="toolbar-top">
+            <div class="toolbar-left">
+              <div class="section-title" style="margin:0; padding-bottom:0; border-bottom:none;">Listado</div>
+              <button class="btn-filter active" id="filtroTodas" onclick="setFiltroEstado('Todas')">Todas</button>
+              <button class="btn-filter" id="filtroPendiente" onclick="setFiltroEstado('Pendiente')">Pendientes</button>
+              <button class="btn-filter" id="filtroAplicada" onclick="setFiltroEstado('Aplicada')">Aplicadas</button>
+            </div>
           </div>
 
-          <div class="toolbar-right">
+          <div class="filters-bar">
             <select id="filtroMes" class="filter-select" onchange="renderTabla()">
               <option value="">Mes</option>
               <option value="01">Enero</option>
@@ -904,7 +1014,7 @@
   <div class="modal" id="modalEditar">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Editar Transferencia</h3>
+        <div class="section-title" style="margin:0; width:100%;">Editar Transferencia</div>
         <button class="close-btn" onclick="cerrarModalEditar()">✖</button>
       </div>
 
@@ -914,7 +1024,7 @@
           <input type="text" id="editCliente">
 
           <label>Monto ($)</label>
-          <input type="text" id="editMonto" inputmode="decimal" oninput="formatearInputMonto(this)">
+          <input type="text" id="editMonto" inputmode="decimal" oninput="formatearInputMonto(this)" onblur="formatearInputMontoBlur(this)">
 
           <label>Fecha recibida</label>
           <input type="date" id="editFecha">
@@ -951,7 +1061,7 @@
   <div class="modal" id="modalEliminar">
     <div class="modal-content modal-small">
       <div class="modal-header">
-        <h3>Eliminar transferencia</h3>
+        <div class="section-title" style="margin:0; width:100%;">Eliminar transferencia</div>
         <button class="close-btn" onclick="cerrarModalEliminar()">✖</button>
       </div>
       <div class="modal-message">
@@ -967,7 +1077,7 @@
   <div class="modal" id="modalAviso">
     <div class="modal-content modal-small">
       <div class="modal-header">
-        <h3 id="modalAvisoTitulo">Aviso</h3>
+        <div class="section-title" id="modalAvisoTitulo" style="margin:0; width:100%;">Aviso</div>
         <button class="close-btn" onclick="cerrarModalAviso()">✖</button>
       </div>
       <div class="modal-message" id="modalAvisoMensaje"></div>
@@ -980,7 +1090,7 @@
   <div class="modal" id="modalInfo">
     <div class="modal-content modal-medium">
       <div class="modal-header">
-        <h3>Información del registro</h3>
+        <div class="section-title" style="margin:0; width:100%;">Información del registro</div>
         <button class="close-btn" onclick="cerrarModalInfo()">✖</button>
       </div>
 
@@ -1020,7 +1130,7 @@
   <div class="modal" id="modalHistorial">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Historial del sistema</h3>
+        <div class="section-title" style="margin:0; width:100%;">Historial del sistema</div>
         <button class="close-btn" onclick="cerrarModalHistorial()">✖</button>
       </div>
 
@@ -1047,7 +1157,7 @@
   <div class="modal" id="modalUsuarios">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Usuarios del sistema</h3>
+        <div class="section-title" style="margin:0; width:100%;">Usuarios del sistema</div>
         <button class="close-btn" onclick="cerrarModalUsuarios()">✖</button>
       </div>
 
@@ -1074,7 +1184,7 @@
   <div class="modal" id="modalAuditoria">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Panel de auditoría</h3>
+        <div class="section-title" style="margin:0; width:100%;">Panel de auditoría</div>
         <button class="close-btn" onclick="cerrarModalAuditoria()">✖</button>
       </div>
 
@@ -1097,7 +1207,7 @@
         </div>
       </div>
 
-      <h3 style="margin-top:20px;">Actividad por usuario</h3>
+      <div class="section-title" style="margin-top:20px;">Actividad por usuario</div>
       <div class="table-wrapper">
         <table>
           <thead>
@@ -1121,7 +1231,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <div class="firma-ac3">AC3 VISUALS</div>
+  <div class="firma-ac3">AC3VISUALS🫠</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -1275,6 +1385,19 @@
       } else {
         input.value = entero ? enteroFormateado : "";
       }
+    };
+
+    window.formatearInputMontoBlur = function(input) {
+      const limpio = limpiarMontoTexto(input.value);
+      if (!limpio) {
+        input.value = "";
+        return;
+      }
+
+      const numero = Number(limpio);
+      if (isNaN(numero)) return;
+
+      input.value = formatearMonto(numero);
     };
 
     function inicioDelDiaISO() {
@@ -1777,6 +1900,15 @@
       });
     }
 
+    window.toggleAdminMenu = function() {
+      const dropdown = document.getElementById("adminDropdown");
+      dropdown.classList.toggle("open");
+    };
+
+    window.cerrarAdminMenu = function() {
+      document.getElementById("adminDropdown").classList.remove("open");
+    };
+
     window.abrirModalHistorial = function() {
       if (!esAdmin) return;
       document.getElementById("modalHistorial").style.display = "flex";
@@ -2269,12 +2401,7 @@
         document.getElementById("panel").style.display = "block";
         document.getElementById("topRight").style.display = "flex";
         document.getElementById("systemStatus").style.display = "inline-flex";
-
-        document.getElementById("btnRespaldo").style.display = esAdmin ? "inline-block" : "none";
-        document.getElementById("btnExportar").style.display = esAdmin ? "inline-block" : "none";
-        document.getElementById("btnHistorial").style.display = esAdmin ? "inline-block" : "none";
-        document.getElementById("btnUsuarios").style.display = esAdmin ? "inline-block" : "none";
-        document.getElementById("btnAuditoria").style.display = esAdmin ? "inline-block" : "none";
+        document.getElementById("adminMenuWrap").style.display = esAdmin ? "block" : "none";
 
         await registrarActividadUsuario();
         iniciarListenerTransferencias();
@@ -2306,6 +2433,13 @@
     });
 
     window.addEventListener("click", (e) => {
+      const dropdown = document.getElementById("adminDropdown");
+      const menuWrap = document.getElementById("adminMenuWrap");
+
+      if (menuWrap && !menuWrap.contains(e.target)) {
+        dropdown.classList.remove("open");
+      }
+
       if (e.target === document.getElementById("modalEditar")) cerrarModalEditar();
       if (e.target === document.getElementById("modalEliminar")) cerrarModalEliminar();
       if (e.target === document.getElementById("modalAviso")) cerrarModalAviso();
