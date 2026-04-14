@@ -627,6 +627,7 @@
 
     .table-wrapper {
       overflow-x: auto;
+      overflow-y: visible;
       border: 1px solid var(--border);
       border-radius: 18px;
       background: rgba(255,255,255,0.015);
@@ -1233,14 +1234,14 @@
       position: absolute;
       top: calc(100% + 6px);
       right: 0;
-      min-width: 170px;
+      min-width: 190px;
       background: rgba(18, 18, 28, 0.98);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 6px;
       box-shadow: var(--shadow-soft);
       display: none;
-      z-index: 50;
+      z-index: 1200;
     }
 
     .row-dropdown.open {
@@ -1257,6 +1258,8 @@
       padding: 10px 12px;
       font-size: 12px;
       font-weight: 700;
+      display: block;
+      line-height: 1.3;
     }
 
     .row-dropdown button:hover {
@@ -1421,7 +1424,7 @@
       <input type="password" id="password" placeholder="Contraseña">
 
 
-      <button class="btn-guardar" id="btnLogin" onclick="login()">Ingresar</button>
+      <button class="btn-guardar" id="btnLogin" data-loading-text="Ingresando..." data-success-text="Listo ✓" onclick="login()">Ingresar</button>
     </div>
 
     <div id="panel" style="display:none;">
@@ -1442,25 +1445,9 @@
           <div class="dash-label">Monto total registrado</div>
           <div class="dash-value" id="dashMonto">$0.00</div>
         </div>
-        <div class="dash-card is-pending">
-          <div class="dash-label">Monto pendiente</div>
-          <div class="dash-value" id="dashMontoPendiente">$0.00</div>
-        </div>
-        <div class="dash-card is-success">
-          <div class="dash-label">Monto aplicado</div>
-          <div class="dash-value" id="dashMontoAplicado">$0.00</div>
-        </div>
-        <div class="dash-card is-total">
-          <div class="dash-label">Creadas hoy</div>
-          <div class="dash-value" id="dashCreadasHoy">0</div>
-        </div>
         <div class="dash-card is-amount">
           <div class="dash-label">Última transferencia</div>
           <div class="dash-value dash-value-small" id="dashUltimaTransferencia">—</div>
-        </div>
-        <div class="dash-card is-total">
-          <div class="dash-label">Usuario más activo hoy</div>
-          <div class="dash-value dash-value-small" id="dashUsuarioActivo">—</div>
         </div>
       </div>
 
@@ -1501,7 +1488,7 @@
           </div>
         </div>
 
-        <button class="btn-guardar" id="btnGuardarTransferencia" onclick="guardarTransferencia()" tabindex="9">Guardar Transferencia</button>
+        <button class="btn-guardar" id="btnGuardarTransferencia" data-loading-text="Guardando..." data-success-text="Guardado ✓" onclick="guardarTransferencia()" tabindex="9">Guardar Transferencia</button>
 
         <datalist id="bancosFrecuentes">
           <option value="BAC"></option>
@@ -1621,7 +1608,7 @@
       </div>
 
       <div class="actions-row">
-        <button class="btn-guardar" id="btnGuardarCambios" onclick="guardarCambios()">Guardar Cambios</button>
+        <button class="btn-guardar" id="btnGuardarCambios" data-loading-text="Guardando..." data-success-text="Guardado ✓" onclick="guardarCambios()">Guardar Cambios</button>
         <button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
       </div>
     </div>
@@ -1898,11 +1885,11 @@
       if (state === "saving") {
         button.disabled = true;
         button.classList.add("is-saving");
-        button.textContent = "Guardando...";
+        button.textContent = button.dataset.loadingText || "Guardando...";
       } else if (state === "success") {
         button.disabled = true;
         button.classList.add("btn-success-state");
-        button.textContent = "Guardado ✓";
+        button.textContent = button.dataset.successText || "Guardado ✓";
       } else if (state === "error") {
         button.disabled = true;
         button.classList.add("btn-error-state");
@@ -2225,27 +2212,12 @@
 
     function actualizarDashboard() {
       const total = transferencias.length;
-      const pendientesLista = transferencias.filter(t => t.estado === "Pendiente");
-      const aplicadasLista = transferencias.filter(t => t.estado === "Aplicada");
-      const pendientes = pendientesLista.length;
-      const aplicadas = aplicadasLista.length;
+      const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
+      const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
       const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
-      const montoPendiente = pendientesLista.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
-      const montoAplicado = aplicadasLista.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
-      const inicioHoy = inicioDelDiaISO();
-      const creadasHoy = transferencias.filter(t => (t.createdAt || "") >= inicioHoy).length;
       const ultimaTransferencia = [...transferencias]
         .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))[0];
 
-      const mapaActividad = {};
-      transferencias.forEach(t => {
-        if ((t.createdAt || "") >= inicioHoy) {
-          const nombre = t.createdByName || "Usuario";
-          mapaActividad[nombre] = (mapaActividad[nombre] || 0) + 1;
-        }
-      });
-
-      const usuarioActivo = Object.entries(mapaActividad).sort((a, b) => b[1] - a[1])[0];
       const ultimaTexto = ultimaTransferencia
         ? `${ultimaTransferencia.cliente || "Sin cliente"} · $${formatearMonto(ultimaTransferencia.monto || 0)}`
         : "—";
@@ -2254,11 +2226,7 @@
       document.getElementById("dashPendientes").textContent = pendientes;
       document.getElementById("dashAplicadas").textContent = aplicadas;
       document.getElementById("dashMonto").textContent = `$${formatearMonto(montoTotal)}`;
-      document.getElementById("dashMontoPendiente").textContent = `$${formatearMonto(montoPendiente)}`;
-      document.getElementById("dashMontoAplicado").textContent = `$${formatearMonto(montoAplicado)}`;
-      document.getElementById("dashCreadasHoy").textContent = creadasHoy;
       document.getElementById("dashUltimaTransferencia").textContent = ultimaTexto;
-      document.getElementById("dashUsuarioActivo").textContent = usuarioActivo ? `${usuarioActivo[0]} (${usuarioActivo[1]})` : "—";
       cargarSugerenciasClientes();
     }
 
@@ -2768,6 +2736,7 @@
     window.login = async function() {
       const email = document.getElementById("email").value.trim().toLowerCase();
       const password = document.getElementById("password").value.trim();
+      const btnLogin = document.getElementById("btnLogin");
 
       if (!email || !password) {
         showToast("Ingresa correo y contraseña.", "warn");
@@ -2775,15 +2744,17 @@
       }
 
       try {
-        setSystemStatus("syncing", "Actualizando");
-        await withSaveFeedback(document.getElementById("btnLogin"), async () => {
-          await signInWithEmailAndPassword(auth, email, password);
-        });
+        setSystemStatus("syncing", "Accediendo");
+        btnLogin.disabled = true;
+        btnLogin.textContent = "Ingresando...";
+        await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
         console.error("Error de login:", error);
         alert("Error de login: " + error.code + " | " + error.message);
         showToast("Error de acceso.", "error");
         setSystemStatus("offline", "Sin conexión");
+        btnLogin.disabled = false;
+        btnLogin.textContent = "Ingresar";
       }
     };
 
@@ -3185,13 +3156,13 @@
           ? `<span class="status-badge status-aplicada">Aplicada</span>`
           : `<span class="status-badge status-pendiente">Pendiente</span>`;
 
-        const editarBtn = can("edit")
-          ? `<button class="btn-edit" onclick="editarTransferencia('${t.id}')">✎ Editar</button>`
-          : `<button class="btn-edit" disabled style="opacity:.45;cursor:not-allowed;">✎ Editar</button>`;
+        const estadoBtn = can("changeStatus")
+          ? `<button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">${t.estado === "Pendiente" ? "Aplicar" : "Marcar pendiente"}</button>`
+          : `<button class="btn-estado" disabled style="opacity:.45;cursor:not-allowed;">Estado</button>`;
 
         const menuItems = [
           `<button onclick="abrirModalInfo('${t.id}'); cerrarMenusFilas();">Ver info</button>`,
-          can("changeStatus") ? `<button onclick="cambiarEstado('${t.id}', '${t.estado}'); cerrarMenusFilas();">Cambiar estado</button>` : "",
+          can("edit") ? `<button onclick="editarTransferencia('${t.id}'); cerrarMenusFilas();">Editar</button>` : "",
           can("delete") ? `<button onclick="abrirModalEliminar('${t.id}'); cerrarMenusFilas();">Eliminar</button>` : ""
         ].filter(Boolean).join("");
 
@@ -3207,7 +3178,7 @@
             <td class="obs-cell">${escapeHtml(t.comentarios || "No aplica")}</td>
             <td>
               <div class="row-actions">
-                ${editarBtn}
+                ${estadoBtn}
                 <div class="action-menu-wrap">
                   <button class="btn-menu-row" onclick="toggleRowMenu('${t.id}')">⋮</button>
                   <div class="row-dropdown" id="rowMenu-${t.id}">${menuItems}</div>
@@ -3227,6 +3198,12 @@
 
           currentUserName = await obtenerONombreUsuario();
           actualizarAvatar(currentUserName);
+
+          const btnLogin = document.getElementById("btnLogin");
+          if (btnLogin) {
+            btnLogin.disabled = false;
+            btnLogin.textContent = "Ingresar";
+          }
 
           document.getElementById("loginCard").style.display = "none";
           document.getElementById("panel").style.display = "block";
@@ -3260,6 +3237,12 @@
         if (unsubscribeUsuarios) {
           unsubscribeUsuarios();
           unsubscribeUsuarios = null;
+        }
+
+        const btnLogin = document.getElementById("btnLogin");
+        if (btnLogin) {
+          btnLogin.disabled = false;
+          btnLogin.textContent = "Ingresar";
         }
 
         document.getElementById("loginCard").style.display = "block";
