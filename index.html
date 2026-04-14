@@ -1191,6 +1191,182 @@
       }
     }
 
+  
+    .dashboard-extended {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .dash-value-small {
+      font-size: 16px;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    .action-menu-wrap {
+      position: relative;
+    }
+
+    .btn-menu-row {
+      min-width: 40px;
+      width: 40px;
+      height: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      background: linear-gradient(180deg, #242431, #1c1c27);
+      color: #fff;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+    }
+
+    .row-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 170px;
+      background: rgba(18, 18, 28, 0.98);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: var(--shadow-soft);
+      display: none;
+      z-index: 50;
+    }
+
+    .row-dropdown.open {
+      display: block;
+    }
+
+    .row-dropdown button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: #f2f2f2;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .row-dropdown button:hover {
+      background: #232332;
+      border-color: rgba(255,255,255,0.06);
+      transform: none;
+    }
+
+    .btn-role-save {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      background: linear-gradient(180deg, #6f46ff, #5416DB);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .table-role-select {
+      min-width: 130px;
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .role-admin { background: rgba(84,22,219,0.18); color: #d8cbff; }
+    .role-user { background: rgba(76,175,80,0.12); color: #9df0a3; }
+    .role-consultor { background: rgba(255,179,0,0.12); color: #ffd76f; }
+
+    .hidden-by-role {
+      display: none !important;
+    }
+
+    .is-saving {
+      opacity: 0.9;
+      pointer-events: none;
+      filter: saturate(0.95);
+    }
+
+    .btn-success-state {
+      background: linear-gradient(180deg, #4caf50, #2e9b42) !important;
+      box-shadow: 0 10px 20px rgba(76,175,80,0.22) !important;
+    }
+
+    .btn-error-state {
+      background: linear-gradient(180deg, #ef5350, #d32f2f) !important;
+      box-shadow: 0 10px 20px rgba(229,57,53,0.22) !important;
+    }
+
+    .card, .dash-card, .modal-content, .table-wrapper, #loginCard,
+    tbody tr {
+      animation: none !important;
+    }
+
+    .card:hover, .dash-card:hover, .btn-logout:hover, .btn-secondary:hover,
+    .btn-guardar:hover, .btn-danger:hover, .btn-edit:hover, .btn-estado:hover,
+    .btn-info:hover, .btn-filter:hover, .btn-clear-filters:hover {
+      transform: translateY(-1px);
+    }
+
+    .dash-card,
+    tbody tr,
+    button,
+    input,
+    select,
+    textarea,
+    .modal,
+    .modal-content {
+      transition-duration: 0.12s !important;
+    }
+
+    .modal {
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      max-height: 86vh;
+    }
+
+    .readonly-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-soft);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-extended { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-extended { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .dashboard-extended { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 
@@ -1245,11 +1421,11 @@
       <input type="password" id="password" placeholder="Contraseña">
 
 
-      <button class="btn-guardar" onclick="login()">Ingresar</button>
+      <button class="btn-guardar" id="btnLogin" onclick="login()">Ingresar</button>
     </div>
 
     <div id="panel" style="display:none;">
-      <div class="dashboard">
+      <div class="dashboard dashboard-extended">
         <div class="dash-card is-total">
           <div class="dash-label">Total registros</div>
           <div class="dash-value" id="dashTotal">0</div>
@@ -1266,25 +1442,45 @@
           <div class="dash-label">Monto total registrado</div>
           <div class="dash-value" id="dashMonto">$0.00</div>
         </div>
+        <div class="dash-card is-pending">
+          <div class="dash-label">Monto pendiente</div>
+          <div class="dash-value" id="dashMontoPendiente">$0.00</div>
+        </div>
+        <div class="dash-card is-success">
+          <div class="dash-label">Monto aplicado</div>
+          <div class="dash-value" id="dashMontoAplicado">$0.00</div>
+        </div>
+        <div class="dash-card is-total">
+          <div class="dash-label">Creadas hoy</div>
+          <div class="dash-value" id="dashCreadasHoy">0</div>
+        </div>
+        <div class="dash-card is-amount">
+          <div class="dash-label">Última transferencia</div>
+          <div class="dash-value dash-value-small" id="dashUltimaTransferencia">—</div>
+        </div>
+        <div class="dash-card is-total">
+          <div class="dash-label">Usuario más activo hoy</div>
+          <div class="dash-value dash-value-small" id="dashUsuarioActivo">—</div>
+        </div>
       </div>
 
-      <div class="card card-accent-primary">
+      <div class="card card-accent-primary" id="formCard">
         <div class="section-title">Registrar nueva transferencia</div>
         <div class="summary-note">Ingresa los datos disponibles y guarda la transferencia cuando esté lista.</div>
 
         <div class="grid">
           <div>
             <label>Cliente</label>
-            <input type="text" id="cliente" placeholder="Ej: Juan Pérez">
+            <input type="text" id="cliente" placeholder="Ej: Juan Pérez" list="clientesFrecuentes" tabindex="1">
 
             <label>Monto ($)</label>
-            <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)" onblur="formatearInputMontoBlur(this)">
+            <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)" onblur="formatearInputMontoBlur(this)" tabindex="2">
 
             <label>Fecha recibida</label>
-            <input type="date" id="fecha">
+            <input type="date" id="fecha" tabindex="3">
 
             <label>Estado</label>
-            <select id="estado">
+            <select id="estado" tabindex="4">
               <option value="Pendiente">Pendiente</option>
               <option value="Aplicada">Aplicada</option>
             </select>
@@ -1292,20 +1488,30 @@
 
           <div>
             <label>N° Recibo</label>
-            <input type="text" id="recibo" placeholder="Ej: R-000123">
+            <input type="text" id="recibo" placeholder="Ej: R-000123" tabindex="5">
 
             <label>Fecha recibo</label>
-            <input type="date" id="fechaRecibo">
+            <input type="date" id="fechaRecibo" tabindex="6">
 
             <label>ID o Banco</label>
-            <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno">
+            <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno" list="bancosFrecuentes" tabindex="7">
 
             <label>Observaciones / Comentarios</label>
-            <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc."></textarea>
+            <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc." tabindex="8"></textarea>
           </div>
         </div>
 
-        <button class="btn-guardar" onclick="guardarTransferencia()">Guardar Transferencia</button>
+        <button class="btn-guardar" id="btnGuardarTransferencia" onclick="guardarTransferencia()" tabindex="9">Guardar Transferencia</button>
+
+        <datalist id="bancosFrecuentes">
+          <option value="BAC"></option>
+          <option value="Banco Agrícola"></option>
+          <option value="Banco Cuscatlán"></option>
+          <option value="Davivienda"></option>
+          <option value="Promerica"></option>
+          <option value="Scotiabank"></option>
+        </datalist>
+        <datalist id="clientesFrecuentes"></datalist>
       </div>
 
       <div class="card card-flat">
@@ -1415,7 +1621,7 @@
       </div>
 
       <div class="actions-row">
-        <button class="btn-guardar" onclick="guardarCambios()">Guardar Cambios</button>
+        <button class="btn-guardar" id="btnGuardarCambios" onclick="guardarCambios()">Guardar Cambios</button>
         <button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
       </div>
     </div>
@@ -1532,6 +1738,8 @@
               <th>Nombre simbólico</th>
               <th>Último acceso</th>
               <th>Última actividad</th>
+              <th>Rol</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody id="tablaUsuarios"></tbody>
@@ -1639,12 +1847,146 @@
     let idEliminar = null;
     let filtroEstadoActual = "Todas";
     let esAdmin = false;
+    let currentUserRole = "user";
     let unsubscribeTransferencias = null;
     let unsubscribeHistorial = null;
     let unsubscribeUsuarios = null;
     let currentUserEmail = "";
     let currentUserName = "";
     let snapshotInicialCargado = false;
+
+
+    const ROLE_PERMISSIONS = {
+      admin: { view: true, search: true, create: true, edit: true, delete: true, changeStatus: true, exportCSV: true, backup: true, audit: true, users: true },
+      user: { view: true, search: true, create: true, edit: true, delete: false, changeStatus: true, exportCSV: false, backup: false, audit: false, users: false },
+      consultor: { view: true, search: true, create: false, edit: false, delete: false, changeStatus: false, exportCSV: false, backup: false, audit: false, users: false }
+    };
+
+    function getRolePermissions() {
+      return ROLE_PERMISSIONS[currentUserRole] || ROLE_PERMISSIONS.user;
+    }
+
+    function can(permission) {
+      return !!getRolePermissions()[permission];
+    }
+
+    function obtenerRolDefault(email) {
+      return String(email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "admin" : "user";
+    }
+
+    function obtenerEtiquetaRol(role) {
+      if (role === "admin") return "Admin";
+      if (role === "consultor") return "Consultor";
+      return "Usuario";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function applySaveFeedbackState(button, state, originalText) {
+      if (!button) return;
+      if (!button.dataset.originalText) button.dataset.originalText = originalText || button.textContent;
+      const baseText = originalText || button.dataset.originalText;
+
+      button.classList.remove("is-saving", "btn-success-state", "btn-error-state");
+      if (state === "saving") {
+        button.disabled = true;
+        button.classList.add("is-saving");
+        button.textContent = "Guardando...";
+      } else if (state === "success") {
+        button.disabled = true;
+        button.classList.add("btn-success-state");
+        button.textContent = "Guardado ✓";
+      } else if (state === "error") {
+        button.disabled = true;
+        button.classList.add("btn-error-state");
+        button.textContent = "Error";
+      } else {
+        button.disabled = false;
+        button.textContent = baseText;
+      }
+    }
+
+    async function withSaveFeedback(button, task) {
+      applySaveFeedbackState(button, "saving");
+      try {
+        const result = await task();
+        applySaveFeedbackState(button, "success");
+        await new Promise(resolve => setTimeout(resolve, 900));
+        applySaveFeedbackState(button, "normal");
+        return result;
+      } catch (error) {
+        applySaveFeedbackState(button, "error");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        applySaveFeedbackState(button, "normal");
+        throw error;
+      }
+    }
+
+    function applyRoleVisibility() {
+      esAdmin = currentUserRole === "admin";
+      document.getElementById("adminMenuWrap").style.display = esAdmin ? "block" : "none";
+
+      const formCard = document.getElementById("formCard");
+      if (formCard) {
+        formCard.style.display = can("create") ? "block" : "none";
+      }
+
+      let readonlyNote = document.getElementById("readonlyNote");
+      if (!can("create")) {
+        if (!readonlyNote) {
+          readonlyNote = document.createElement("div");
+          readonlyNote.id = "readonlyNote";
+          readonlyNote.className = "readonly-note";
+          readonlyNote.textContent = "Modo solo lectura activo: puedes buscar, filtrar y ver detalles, pero no modificar registros.";
+          const panel = document.getElementById("panel");
+          panel.insertBefore(readonlyNote, panel.children[1] || null);
+        }
+      } else if (readonlyNote) {
+        readonlyNote.remove();
+      }
+    }
+
+    function cargarSugerenciasClientes() {
+      const datalist = document.getElementById("clientesFrecuentes");
+      if (!datalist) return;
+      const nombres = [...new Set(transferencias
+        .map(t => String(t.cliente || "").trim())
+        .filter(n => n && n !== "No aplica"))]
+        .sort((a, b) => a.localeCompare(b))
+        .slice(0, 40);
+      datalist.innerHTML = nombres.map(nombre => `<option value="${escapeHtml(nombre)}"></option>`).join("");
+    }
+
+    function configurarAtajosFormulario() {
+      ["cliente","monto","fecha","estado","recibo","fechaRecibo","banco","comentarios"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
+            e.preventDefault();
+            if (can("create")) guardarTransferencia();
+          }
+        });
+      });
+
+      ["email","password"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            login();
+          }
+        });
+      });
+    }
 
     function setSystemStatus(mode, text) {
       const wrap = document.getElementById("systemStatus");
@@ -1791,6 +2133,7 @@
       await setDoc(doc(db, "usuarios_app", id), {
         email,
         nombreSimbolico: nombre,
+        role: extra.role || currentUserRole || obtenerRolDefault(email),
         ultimoAcceso: extra.ultimoAcceso || new Date().toISOString(),
         ultimaActividad: extra.ultimaActividad || new Date().toISOString()
       }, { merge: true });
@@ -1803,8 +2146,20 @@
       });
     }
 
+    async function obtenerPerfilUsuario(email) {
+      try {
+        const snap = await getDoc(doc(db, "usuarios_app", String(email || "").toLowerCase()));
+        return snap.exists() ? snap.data() : null;
+      } catch (error) {
+        console.error("Error al obtener perfil de usuario:", error);
+        return null;
+      }
+    }
+
     async function obtenerONombreUsuario() {
-      let nombre = await obtenerNombreUsuarioPorCorreo(currentUserEmail);
+      const perfil = await obtenerPerfilUsuario(currentUserEmail);
+      let nombre = perfil?.nombreSimbolico || "";
+      currentUserRole = perfil?.role || obtenerRolDefault(currentUserEmail);
 
       if (!nombre || !String(nombre).trim()) {
         nombre = prompt("Ingresa un nombre de usuario para este correo:");
@@ -1812,17 +2167,13 @@
           nombre = "Usuario";
         }
         nombre = String(nombre).trim();
-
-        await guardarUsuarioApp(currentUserEmail, nombre, {
-          ultimoAcceso: new Date().toISOString(),
-          ultimaActividad: new Date().toISOString()
-        });
-      } else {
-        await guardarUsuarioApp(currentUserEmail, nombre, {
-          ultimoAcceso: new Date().toISOString(),
-          ultimaActividad: new Date().toISOString()
-        });
       }
+
+      await guardarUsuarioApp(currentUserEmail, nombre, {
+        role: currentUserRole,
+        ultimoAcceso: new Date().toISOString(),
+        ultimaActividad: new Date().toISOString()
+      });
 
       return nombre;
     }
@@ -1868,14 +2219,41 @@
 
     function actualizarDashboard() {
       const total = transferencias.length;
-      const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
-      const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
+      const pendientesLista = transferencias.filter(t => t.estado === "Pendiente");
+      const aplicadasLista = transferencias.filter(t => t.estado === "Aplicada");
+      const pendientes = pendientesLista.length;
+      const aplicadas = aplicadasLista.length;
       const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+      const montoPendiente = pendientesLista.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+      const montoAplicado = aplicadasLista.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+      const inicioHoy = inicioDelDiaISO();
+      const creadasHoy = transferencias.filter(t => (t.createdAt || "") >= inicioHoy).length;
+      const ultimaTransferencia = [...transferencias]
+        .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))[0];
+
+      const mapaActividad = {};
+      transferencias.forEach(t => {
+        if ((t.createdAt || "") >= inicioHoy) {
+          const nombre = t.createdByName || "Usuario";
+          mapaActividad[nombre] = (mapaActividad[nombre] || 0) + 1;
+        }
+      });
+
+      const usuarioActivo = Object.entries(mapaActividad).sort((a, b) => b[1] - a[1])[0];
+      const ultimaTexto = ultimaTransferencia
+        ? `${ultimaTransferencia.cliente || "Sin cliente"} · $${formatearMonto(ultimaTransferencia.monto || 0)}`
+        : "—";
 
       document.getElementById("dashTotal").textContent = total;
       document.getElementById("dashPendientes").textContent = pendientes;
       document.getElementById("dashAplicadas").textContent = aplicadas;
       document.getElementById("dashMonto").textContent = `$${formatearMonto(montoTotal)}`;
+      document.getElementById("dashMontoPendiente").textContent = `$${formatearMonto(montoPendiente)}`;
+      document.getElementById("dashMontoAplicado").textContent = `$${formatearMonto(montoAplicado)}`;
+      document.getElementById("dashCreadasHoy").textContent = creadasHoy;
+      document.getElementById("dashUltimaTransferencia").textContent = ultimaTexto;
+      document.getElementById("dashUsuarioActivo").textContent = usuarioActivo ? `${usuarioActivo[0]} (${usuarioActivo[1]})` : "—";
+      cargarSugerenciasClientes();
     }
 
     function llenarFiltroAnios() {
@@ -2058,7 +2436,7 @@
     }
 
     function iniciarListenerHistorial() {
-      if (!esAdmin) return;
+      if (!can("audit")) return;
       if (unsubscribeHistorial) unsubscribeHistorial();
 
       unsubscribeHistorial = onSnapshot(
@@ -2085,7 +2463,7 @@
     }
 
     function iniciarListenerUsuarios() {
-      if (!esAdmin) return;
+      if (!can("users")) return;
       if (unsubscribeUsuarios) unsubscribeUsuarios();
 
       unsubscribeUsuarios = onSnapshot(
@@ -2174,7 +2552,7 @@
       if (usuariosApp.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="4" style="text-align:center; color:#9e9e9e;">
+            <td colspan="6" style="text-align:center; color:#9e9e9e;">
               No hay usuarios registrados.
             </td>
           </tr>
@@ -2183,16 +2561,52 @@
       }
 
       usuariosApp.forEach(u => {
+        const role = u.role || obtenerRolDefault(u.email);
+        const isMainAdmin = String(u.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
         tbody.innerHTML += `
           <tr>
             <td>${u.email || "No aplica"}</td>
             <td>${u.nombreSimbolico || "No aplica"}</td>
             <td>${formatearFechaHora(u.ultimoAcceso)}</td>
             <td>${formatearFechaHora(u.ultimaActividad)}</td>
+            <td><span class="role-badge role-${role}">${obtenerEtiquetaRol(role)}</span></td>
+            <td>
+              ${isMainAdmin ? '<span class="muted-cell">Admin principal</span>' : `
+                <div class="table-actions">
+                  <select class="table-role-select" id="role-${u.id}">
+                    <option value="user" ${role === 'user' ? 'selected' : ''}>Usuario</option>
+                    <option value="consultor" ${role === 'consultor' ? 'selected' : ''}>Consultor</option>
+                    <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
+                  </select>
+                  <button class="btn-role-save" onclick="actualizarRolUsuario('${u.id}')">Guardar</button>
+                </div>`}
+            </td>
           </tr>
         `;
       });
     }
+
+    window.actualizarRolUsuario = async function(id) {
+      if (!can("users")) return;
+      const select = document.getElementById(`role-${id}`);
+      if (!select) return;
+      const nuevoRol = select.value;
+      const usuario = usuariosApp.find(u => u.id === id);
+      if (!usuario) return;
+
+      try {
+        await setDoc(doc(db, "usuarios_app", id), { role: nuevoRol }, { merge: true });
+        showToast(`Rol actualizado a ${obtenerEtiquetaRol(nuevoRol)}.`, "success");
+        if (String(usuario.email || "").toLowerCase() === currentUserEmail.toLowerCase()) {
+          currentUserRole = nuevoRol;
+          applyRoleVisibility();
+          renderTabla();
+        }
+      } catch (error) {
+        console.error("Error al actualizar rol:", error);
+        showToast("Error al actualizar rol.", "error");
+      }
+    };
 
     function renderAuditoria() {
       const inicioHoy = inicioDelDiaISO();
@@ -2273,7 +2687,7 @@
     };
 
     window.abrirModalHistorial = function() {
-      if (!esAdmin) return;
+      if (!can("audit")) return;
       document.getElementById("modalHistorial").style.display = "flex";
     };
 
@@ -2282,7 +2696,7 @@
     };
 
     window.abrirModalUsuarios = function() {
-      if (!esAdmin) return;
+      if (!can("users")) return;
       document.getElementById("modalUsuarios").style.display = "flex";
     };
 
@@ -2291,7 +2705,7 @@
     };
 
     window.abrirModalAuditoria = function() {
-      if (!esAdmin) return;
+      if (!can("audit")) return;
       renderAuditoria();
       document.getElementById("modalAuditoria").style.display = "flex";
     };
@@ -2356,7 +2770,9 @@
 
       try {
         setSystemStatus("syncing", "Actualizando");
-        await signInWithEmailAndPassword(auth, email, password);
+        await withSaveFeedback(document.getElementById("btnLogin"), async () => {
+          await signInWithEmailAndPassword(auth, email, password);
+        });
       } catch (error) {
         console.error("Error de login:", error);
         alert("Error de login: " + error.code + " | " + error.message);
@@ -2387,6 +2803,7 @@
     };
 
     window.crearRespaldo = async function() {
+      if (!can("backup")) return;
       try {
         const sello = new Date().toISOString();
 
@@ -2420,7 +2837,7 @@
     };
 
     window.exportarCSV = function() {
-      if (!esAdmin) return;
+      if (!can("exportCSV")) return;
 
       const headers = [
         "Cliente","Monto","FechaRecibida","Estado","NumeroRecibo","FechaRecibo",
@@ -2468,6 +2885,11 @@
     };
 
     window.guardarTransferencia = async function() {
+      if (!can("create")) {
+        showToast("Tu rol no puede agregar transferencias.", "warn");
+        return;
+      }
+
       const cliente = document.getElementById("cliente").value.trim() || "No aplica";
       const montoTexto = limpiarMontoTexto(document.getElementById("monto").value);
       const fecha = document.getElementById("fecha").value || "No aplica";
@@ -2502,24 +2924,26 @@
       }
 
       try {
-        const ahora = new Date().toISOString();
+        await withSaveFeedback(document.getElementById("btnGuardarTransferencia"), async () => {
+          const ahora = new Date().toISOString();
 
-        const docRef = await addDoc(collection(db, "transferencias"), {
-          ...dataNueva,
-          createdByName: currentUserName || "Usuario",
-          createdByEmail: currentUserEmail || "No aplica",
-          createdAt: ahora,
-          updatedByName: currentUserName || "Usuario",
-          updatedByEmail: currentUserEmail || "No aplica",
-          updatedAt: ahora
-        });
+          const docRef = await addDoc(collection(db, "transferencias"), {
+            ...dataNueva,
+            createdByName: currentUserName || "Usuario",
+            createdByEmail: currentUserEmail || "No aplica",
+            createdAt: ahora,
+            updatedByName: currentUserName || "Usuario",
+            updatedByEmail: currentUserEmail || "No aplica",
+            updatedAt: ahora
+          });
 
-        await registrarHistorial("crear", docRef.id, {
-          cliente,
-          monto: montoFinal,
-          fecha,
-          recibo,
-          banco
+          await registrarHistorial("crear", docRef.id, {
+            cliente,
+            monto: montoFinal,
+            fecha,
+            recibo,
+            banco
+          });
         });
 
         limpiarFormulario();
@@ -2531,6 +2955,10 @@
     };
 
     window.cambiarEstado = async function(id, estadoActual) {
+      if (!can("changeStatus")) {
+        showToast("Tu rol no puede cambiar estados.", "warn");
+        return;
+      }
       const nuevoEstado = estadoActual === "Pendiente" ? "Aplicada" : "Pendiente";
 
       try {
@@ -2556,6 +2984,10 @@
     };
 
     window.abrirModalEliminar = function(id) {
+      if (!can("delete")) {
+        showToast("Tu rol no puede eliminar registros.", "warn");
+        return;
+      }
       idEliminar = id;
       document.getElementById("modalEliminar").style.display = "flex";
     };
@@ -2590,6 +3022,10 @@
     };
 
     window.editarTransferencia = function(id) {
+      if (!can("edit")) {
+        showToast("Tu rol no puede editar registros.", "warn");
+        return;
+      }
       const t = transferencias.find(x => x.id === id);
       if (!t) return;
 
@@ -2613,7 +3049,7 @@
     };
 
     window.guardarCambios = async function() {
-      if (!idEditando) return;
+      if (!idEditando || !can("edit")) return;
 
       const cliente = document.getElementById("editCliente").value.trim() || "No aplica";
       const montoTexto = limpiarMontoTexto(document.getElementById("editMonto").value);
@@ -2649,22 +3085,24 @@
       }
 
       try {
-        const ahora = new Date().toISOString();
+        await withSaveFeedback(document.getElementById("btnGuardarCambios"), async () => {
+          const ahora = new Date().toISOString();
 
-        await updateDoc(doc(db, "transferencias", idEditando), {
-          ...dataEditada,
-          updatedByName: currentUserName || "Usuario",
-          updatedByEmail: currentUserEmail || "No aplica",
-          updatedAt: ahora
-        });
+          await updateDoc(doc(db, "transferencias", idEditando), {
+            ...dataEditada,
+            updatedByName: currentUserName || "Usuario",
+            updatedByEmail: currentUserEmail || "No aplica",
+            updatedAt: ahora
+          });
 
-        await registrarHistorial("editar", idEditando, {
-          cliente,
-          monto: montoFinal,
-          fecha,
-          recibo,
-          banco,
-          estado
+          await registrarHistorial("editar", idEditando, {
+            cliente,
+            monto: montoFinal,
+            fecha,
+            recibo,
+            banco,
+            estado
+          });
         });
 
         cerrarModalEditar();
@@ -2673,6 +3111,18 @@
         console.error("Error al guardar cambios:", error);
         showToast("Error editar.", "error");
       }
+    };
+
+    function cerrarMenusFilas() {
+      document.querySelectorAll(".row-dropdown.open").forEach(menu => menu.classList.remove("open"));
+    }
+
+    window.toggleRowMenu = function(id) {
+      const menu = document.getElementById(`rowMenu-${id}`);
+      if (!menu) return;
+      const estabaAbierto = menu.classList.contains("open");
+      cerrarMenusFilas();
+      if (!estabaAbierto) menu.classList.add("open");
     };
 
     window.renderTabla = function() {
@@ -2729,22 +3179,33 @@
           ? `<span class="status-badge status-aplicada">Aplicada</span>`
           : `<span class="status-badge status-pendiente">Pendiente</span>`;
 
+        const editarBtn = can("edit")
+          ? `<button class="btn-edit" onclick="editarTransferencia('${t.id}')">✎ Editar</button>`
+          : `<button class="btn-edit" disabled style="opacity:.45;cursor:not-allowed;">✎ Editar</button>`;
+
+        const menuItems = [
+          `<button onclick="abrirModalInfo('${t.id}'); cerrarMenusFilas();">Ver info</button>`,
+          can("changeStatus") ? `<button onclick="cambiarEstado('${t.id}', '${t.estado}'); cerrarMenusFilas();">Cambiar estado</button>` : "",
+          can("delete") ? `<button onclick="abrirModalEliminar('${t.id}'); cerrarMenusFilas();">Eliminar</button>` : ""
+        ].filter(Boolean).join("");
+
         tbody.innerHTML += `
           <tr>
-            <td><div class="client-cell">${t.cliente || "No aplica"}</div></td>
+            <td><div class="client-cell">${escapeHtml(t.cliente || "No aplica")}</div></td>
             <td><div class="money-cell">$${formatearMonto(t.monto)}</div></td>
             <td><div>${formatearFecha(t.fecha)}</div></td>
             <td>${estadoBadge}</td>
-            <td><div>${t.recibo || "No aplica"}</div></td>
+            <td><div>${escapeHtml(t.recibo || "No aplica")}</div></td>
             <td>${formatearFecha(t.fechaRecibo)}</td>
-            <td><div>${t.banco || "No aplica"}</div></td>
-            <td class="obs-cell">${t.comentarios || "No aplica"}</td>
+            <td><div>${escapeHtml(t.banco || "No aplica")}</div></td>
+            <td class="obs-cell">${escapeHtml(t.comentarios || "No aplica")}</td>
             <td>
-              <div class="table-actions">
-                <button class="btn-info" onclick="abrirModalInfo('${t.id}')">ℹ Info</button>
-                <button class="btn-edit" onclick="editarTransferencia('${t.id}')">✎ Editar</button>
-                <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">↺ Estado</button>
-                ${esAdmin ? `<button class="btn-danger" onclick="abrirModalEliminar('${t.id}')">🗑 Eliminar</button>` : ""}
+              <div class="row-actions">
+                ${editarBtn}
+                <div class="action-menu-wrap">
+                  <button class="btn-menu-row" onclick="toggleRowMenu('${t.id}')">⋮</button>
+                  <div class="row-dropdown" id="rowMenu-${t.id}">${menuItems}</div>
+                </div>
               </div>
             </td>
           </tr>
@@ -2755,7 +3216,7 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUserEmail = user.email || "";
-        esAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        currentUserRole = obtenerRolDefault(currentUserEmail);
 
         currentUserName = await obtenerONombreUsuario();
         actualizarAvatar(currentUserName);
@@ -2764,7 +3225,7 @@
         document.getElementById("panel").style.display = "block";
         document.getElementById("topRight").style.display = "flex";
         document.getElementById("systemStatus").style.display = "inline-flex";
-        document.getElementById("adminMenuWrap").style.display = esAdmin ? "block" : "none";
+        applyRoleVisibility();
 
         await registrarActividadUsuario();
         iniciarListenerTransferencias();
@@ -2773,6 +3234,7 @@
       } else {
         currentUserEmail = "";
         currentUserName = "";
+        currentUserRole = "user";
         esAdmin = false;
 
         if (unsubscribeTransferencias) {
@@ -2792,6 +3254,8 @@
         document.getElementById("panel").style.display = "none";
         document.getElementById("topRight").style.display = "none";
         document.getElementById("systemStatus").style.display = "none";
+        const readonlyNote = document.getElementById("readonlyNote");
+        if (readonlyNote) readonlyNote.remove();
       }
     });
 
@@ -2803,6 +3267,10 @@
         dropdown.classList.remove("open");
       }
 
+      if (!e.target.closest('.action-menu-wrap')) {
+        cerrarMenusFilas();
+      }
+
       if (e.target === document.getElementById("modalEditar")) cerrarModalEditar();
       if (e.target === document.getElementById("modalEliminar")) cerrarModalEliminar();
       if (e.target === document.getElementById("modalAviso")) cerrarModalAviso();
@@ -2811,6 +3279,8 @@
       if (e.target === document.getElementById("modalUsuarios")) cerrarModalUsuarios();
       if (e.target === document.getElementById("modalAuditoria")) cerrarModalAuditoria();
     });
+
+    configurarAtajosFormulario();
   </script>
 </body>
 </html>
