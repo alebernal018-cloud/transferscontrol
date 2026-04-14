@@ -1212,6 +1212,8 @@
 
     .action-menu-wrap {
       position: relative;
+      display: inline-flex;
+      align-items: center;
     }
 
     .btn-menu-row {
@@ -1231,17 +1233,17 @@
     }
 
     .row-dropdown {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
       min-width: 190px;
-      background: rgba(18, 18, 28, 0.98);
+      background: rgba(18, 18, 28, 0.99);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 6px;
       box-shadow: var(--shadow-soft);
       display: none;
-      z-index: 1200;
+      z-index: 99999;
     }
 
     .row-dropdown.open {
@@ -1278,11 +1280,14 @@
     }
 
     .table-role-select {
-      min-width: 130px;
+      min-width: 150px;
       margin: 0;
       padding: 8px 10px;
       border-radius: 10px;
       font-size: 12px;
+      background: #171721;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.10);
     }
 
     .role-badge {
@@ -2148,17 +2153,24 @@
       }
     }
 
+    function generarNombreAutomaticoDesdeCorreo(email) {
+      const base = String(email || "").split("@")[0].replace(/[._-]+/g, " ").trim();
+      if (!base) return "Usuario";
+      return base
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(parte => parte.charAt(0).toUpperCase() + parte.slice(1))
+        .join(" ")
+        .slice(0, 40);
+    }
+
     async function obtenerONombreUsuario() {
       const perfil = await obtenerPerfilUsuario(currentUserEmail);
       let nombre = perfil?.nombreSimbolico || "";
       currentUserRole = perfil?.role || obtenerRolDefault(currentUserEmail);
 
       if (!nombre || !String(nombre).trim()) {
-        nombre = prompt("Ingresa un nombre de usuario para este correo:");
-        if (nombre === null || !String(nombre).trim()) {
-          nombre = "Usuario";
-        }
-        nombre = String(nombre).trim();
+        nombre = generarNombreAutomaticoDesdeCorreo(currentUserEmail);
       }
 
       const extra = {
@@ -2548,9 +2560,9 @@
               ${isMainAdmin ? '<span class="muted-cell">Admin principal</span>' : `
                 <div class="table-actions">
                   <select class="table-role-select" id="role-${u.id}">
-                    <option value="user" ${role === 'user' ? 'selected' : ''}>Usuario</option>
-                    <option value="consultor" ${role === 'consultor' ? 'selected' : ''}>Consultor</option>
                     <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
+                    <option value="user" ${role === 'user' ? 'selected' : ''}>User</option>
+                    <option value="consultor" ${role === 'consultor' ? 'selected' : ''}>Consultor</option>
                   </select>
                   <button class="btn-role-save" onclick="actualizarRolUsuario('${u.id}')">Guardar</button>
                 </div>`}
@@ -2900,34 +2912,39 @@
         return;
       }
 
+      const boton = document.getElementById("btnGuardarTransferencia");
+
       try {
-        await withSaveFeedback(document.getElementById("btnGuardarTransferencia"), async () => {
+        let docRef = null;
+        await withSaveFeedback(boton, async () => {
           const ahora = new Date().toISOString();
 
-          const docRef = await addDoc(collection(db, "transferencias"), {
+          docRef = await addDoc(collection(db, "transferencias"), {
             ...dataNueva,
-            createdByName: currentUserName || "Usuario",
+            createdByName: currentUserName || generarNombreAutomaticoDesdeCorreo(currentUserEmail),
             createdByEmail: currentUserEmail || "No aplica",
             createdAt: ahora,
-            updatedByName: currentUserName || "Usuario",
+            updatedByName: currentUserName || generarNombreAutomaticoDesdeCorreo(currentUserEmail),
             updatedByEmail: currentUserEmail || "No aplica",
             updatedAt: ahora
           });
+        });
 
-          await registrarHistorial("crear", docRef.id, {
+        if (docRef?.id) {
+          registrarHistorial("crear", docRef.id, {
             cliente,
             monto: montoFinal,
             fecha,
             recibo,
             banco
-          });
-        });
+          }).catch(error => console.error("Historial no guardado:", error));
+        }
 
         limpiarFormulario();
-        showToast("Guardado.", "success");
+        showToast("Transferencia registrada.", "success");
       } catch (error) {
         console.error("Error al guardar:", error);
-        showToast("Error guardar.", "error");
+        showToast(error?.code === 'permission-denied' ? 'Sin permisos para registrar.' : 'Error al guardar.', "error");
       }
     };
 
@@ -3094,12 +3111,23 @@
       document.querySelectorAll(".row-dropdown.open").forEach(menu => menu.classList.remove("open"));
     }
 
-    window.toggleRowMenu = function(id) {
+    window.toggleRowMenu = function(event, id) {
+      event?.stopPropagation?.();
       const menu = document.getElementById(`rowMenu-${id}`);
       if (!menu) return;
       const estabaAbierto = menu.classList.contains("open");
       cerrarMenusFilas();
-      if (!estabaAbierto) menu.classList.add("open");
+      if (estabaAbierto) return;
+
+      const rect = event.currentTarget.getBoundingClientRect();
+      const menuWidth = 190;
+      const menuHeight = 140;
+      const left = Math.max(12, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 12));
+      const top = Math.max(12, Math.min(rect.bottom + 6, window.innerHeight - menuHeight - 12));
+
+      menu.style.left = `${left}px`;
+      menu.style.top = `${top}px`;
+      menu.classList.add("open");
     };
 
     window.renderTabla = function() {
@@ -3157,13 +3185,13 @@
           : `<span class="status-badge status-pendiente">Pendiente</span>`;
 
         const estadoBtn = can("changeStatus")
-          ? `<button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">${t.estado === "Pendiente" ? "Aplicar" : "Marcar pendiente"}</button>`
-          : `<button class="btn-estado" disabled style="opacity:.45;cursor:not-allowed;">Estado</button>`;
+          ? `<button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">ESTADO</button>`
+          : `<button class="btn-estado" disabled style="opacity:.45;cursor:not-allowed;">ESTADO</button>`;
 
         const menuItems = [
-          `<button onclick="abrirModalInfo('${t.id}'); cerrarMenusFilas();">Ver info</button>`,
-          can("edit") ? `<button onclick="editarTransferencia('${t.id}'); cerrarMenusFilas();">Editar</button>` : "",
-          can("delete") ? `<button onclick="abrirModalEliminar('${t.id}'); cerrarMenusFilas();">Eliminar</button>` : ""
+          `<button type="button" onclick="abrirModalInfo('${t.id}'); cerrarMenusFilas();">Ver info</button>`,
+          can("edit") ? `<button type="button" onclick="editarTransferencia('${t.id}'); cerrarMenusFilas();">Editar</button>` : "",
+          can("delete") ? `<button type="button" onclick="abrirModalEliminar('${t.id}'); cerrarMenusFilas();">Eliminar</button>` : ""
         ].filter(Boolean).join("");
 
         tbody.innerHTML += `
@@ -3180,7 +3208,7 @@
               <div class="row-actions">
                 ${estadoBtn}
                 <div class="action-menu-wrap">
-                  <button class="btn-menu-row" onclick="toggleRowMenu('${t.id}')">⋮</button>
+                  <button type="button" class="btn-menu-row" onclick="toggleRowMenu(event, '${t.id}')">⋮</button>
                   <div class="row-dropdown" id="rowMenu-${t.id}">${menuItems}</div>
                 </div>
               </div>
@@ -3211,7 +3239,7 @@
           document.getElementById("systemStatus").style.display = "inline-flex";
           applyRoleVisibility();
 
-          await registrarActividadUsuario();
+          registrarActividadUsuario().catch(error => console.error("Actividad usuario:", error));
           iniciarListenerTransferencias();
           iniciarListenerHistorial();
           iniciarListenerUsuarios();
