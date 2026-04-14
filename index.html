@@ -2383,21 +2383,13 @@
       return String(valor || "").trim().toLowerCase();
     }
 
-    function detectarDuplicado(data, excluirId = null) {
-      const cliente = normalizarCampo(data.cliente);
-      const monto = Number(data.monto || 0);
-      const fecha = data.fecha || "No aplica";
+    function detectarDuplicadoRecibo(data, excluirId = null) {
       const recibo = normalizarCampo(data.recibo);
-      const banco = normalizarCampo(data.banco);
 
       return transferencias.find(t => {
         if (excluirId && t.id === excluirId) return false;
 
         const tRecibo = normalizarCampo(t.recibo);
-        const tCliente = normalizarCampo(t.cliente);
-        const tBanco = normalizarCampo(t.banco);
-        const tFecha = t.fecha || "No aplica";
-        const tMonto = Number(t.monto || 0);
 
         const mismoRecibo =
           recibo &&
@@ -2406,16 +2398,35 @@
           tRecibo !== "no aplica" &&
           tRecibo === recibo;
 
-        const mismaCombinacion =
+        return mismoRecibo;
+      });
+    }
+
+    function detectarCoincidenciaSimilar(data, excluirId = null) {
+      const cliente = normalizarCampo(data.cliente);
+      const monto = Number(data.monto || 0);
+      const fecha = data.fecha || "No aplica";
+      const banco = normalizarCampo(data.banco);
+
+      return transferencias.find(t => {
+        if (excluirId && t.id === excluirId) return false;
+
+        const tCliente = normalizarCampo(t.cliente);
+        const tBanco = normalizarCampo(t.banco);
+        const tFecha = t.fecha || "No aplica";
+        const tMonto = Number(t.monto || 0);
+
+        return (
           cliente === tCliente &&
           monto === tMonto &&
           fecha === tFecha &&
           banco === tBanco &&
           cliente !== "" &&
+          cliente !== "no aplica" &&
           banco !== "" &&
-          fecha !== "No aplica";
-
-        return mismoRecibo || mismaCombinacion;
+          banco !== "no aplica" &&
+          fecha !== "No aplica"
+        );
       });
     }
 
@@ -2987,13 +2998,18 @@
         comentarios
       };
 
-      const duplicado = detectarDuplicado(dataNueva);
+      const duplicado = detectarDuplicadoRecibo(dataNueva);
+      const coincidenciaSimilar = detectarCoincidenciaSimilar(dataNueva);
       if (duplicado) {
         abrirModalAviso(
-          "Registro duplicado",
-          "No se puede guardar porque esta transferencia ya está registrada."
+          "Recibo duplicado",
+          "No se puede guardar porque el N° de recibo ya existe en otra transferencia."
         );
         return;
+      }
+
+      if (coincidenciaSimilar) {
+        showToast("Aviso: existe una transferencia similar. Se permitirá guardar.", "warn");
       }
 
       const boton = document.getElementById("btnGuardarTransferencia");
@@ -3153,13 +3169,18 @@
         comentarios
       };
 
-      const duplicado = detectarDuplicado(dataEditada, idEditando);
+      const duplicado = detectarDuplicadoRecibo(dataEditada, idEditando);
+      const coincidenciaSimilar = detectarCoincidenciaSimilar(dataEditada, idEditando);
       if (duplicado) {
         abrirModalAviso(
-          "Registro duplicado",
-          "No se puede guardar porque esta transferencia ya está registrada."
+          "Recibo duplicado",
+          "No se puede guardar porque el N° de recibo ya existe en otra transferencia."
         );
         return;
+      }
+
+      if (coincidenciaSimilar) {
+        showToast("Aviso: existe una transferencia similar. Se guardarán los cambios igualmente.", "warn");
       }
 
       try {
