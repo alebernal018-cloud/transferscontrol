@@ -27,6 +27,8 @@
       --danger: #e53935;
       --shadow-soft: 0 16px 40px rgba(0,0,0,0.26);
       --shadow-primary: 0 18px 42px rgba(84, 22, 219, 0.22);
+      --glass: rgba(255,255,255,0.04);
+      --radius-xl: 24px;
     }
 
     body {
@@ -50,6 +52,18 @@
       top: 0;
       z-index: 500;
       box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(84,22,219,0), rgba(111,70,255,0.9), rgba(84,22,219,0));
+      opacity: 0.9;
+      pointer-events: none;
     }
 
     .header-shell {
@@ -76,6 +90,7 @@
       text-transform: uppercase;
       color: #ffffff;
       line-height: 1;
+      text-shadow: 0 0 24px rgba(111,70,255,0.16);
     }
 
     .brand-subtitle {
@@ -211,15 +226,19 @@
     .admin-trigger {
       background: linear-gradient(180deg, rgba(84,22,219,0.24), rgba(84,22,219,0.12));
       color: #f7f4ff;
-      padding: 10px 14px;
+      padding: 10px 12px;
       font-size: 12px;
       border: 1px solid rgba(111,70,255,0.36);
       border-radius: 12px;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 0;
+      min-width: 44px;
+      justify-content: center;
       box-shadow: 0 12px 26px rgba(84,22,219,0.18);
+      font-size: 18px;
+      line-height: 1;
     }
 
     .admin-trigger:hover {
@@ -951,6 +970,9 @@
     #loginCard .section-title {
       font-size: 24px;
       margin-bottom: 12px;
+      text-align: center;
+      border-bottom: none;
+      padding-bottom: 0;
     }
 
     .login-kicker {
@@ -967,6 +989,12 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 14px;
+    }
+
+    #loginCard .login-kicker {
+      display: flex;
+      width: fit-content;
+      margin: 0 auto 14px;
     }
 
     .login-subtext {
@@ -1034,6 +1062,116 @@
       padding: 18px;
     }
 
+    .card, .dash-card, .modal-content, .table-wrapper, #loginCard {
+      animation: fadeRise 0.45s ease both;
+    }
+
+    .card:hover, .dash-card:hover {
+      transform: translateY(-2px);
+    }
+
+    #loginCard {
+      overflow: visible;
+    }
+
+    #loginCard::after {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      background: radial-gradient(circle at top, rgba(111,70,255,0.18), transparent 55%);
+      z-index: -1;
+      filter: blur(18px);
+      pointer-events: none;
+    }
+
+    #loginCard .btn-guardar {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      margin-top: 22px;
+      padding: 13px 18px;
+    }
+
+    .login-subtext {
+      display: none;
+    }
+
+    .summary-note {
+      color: #bec4df;
+      max-width: 620px;
+    }
+
+    .dash-card {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .dash-card:hover {
+      border-color: rgba(111,70,255,0.24);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.28), 0 0 0 1px rgba(111,70,255,0.08) inset;
+    }
+
+    .table-wrapper {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    tbody tr {
+      animation: fadeInSoft 0.28s ease both;
+    }
+
+    .money-cell {
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .btn-info, .btn-edit, .btn-estado, .btn-danger {
+      min-width: 78px;
+      justify-content: center;
+    }
+
+    .table-actions button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filters-bar, .info-box, .audit-card {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    @keyframes fadeRise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInSoft {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 760px) {
+      .container {
+        padding: 18px 14px 22px;
+      }
+
+      .card {
+        border-radius: 18px;
+        padding: 18px;
+      }
+
+      .toolbar-left {
+        width: 100%;
+      }
+
+      .table-actions {
+        min-width: 200px;
+      }
+
+      .btn-info, .btn-edit, .btn-estado, .btn-danger {
+        min-width: 0;
+      }
+    }
+
     @media (max-width: 700px) {
       #loginCard {
         margin-top: 28px;
@@ -1073,9 +1211,7 @@
         <div id="userAvatar" class="user-avatar" title="Usuario"></div>
 
         <div class="admin-menu" id="adminMenuWrap" style="display:none;">
-          <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">
-            ⋮
-          </button>
+          <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">⋮</button>
 
           <div class="admin-dropdown" id="adminDropdown">
             <button onclick="abrirModalUsuarios(); cerrarAdminMenu();">Usuarios</button>
@@ -1102,7 +1238,6 @@
       <div class="login-kicker">Acceso seguro</div>
       <div class="section-title">Iniciar Sesión</div>
       
-
       <label>Correo</label>
       <input type="email" id="email" placeholder="Correo">
 
@@ -2597,7 +2732,7 @@
         tbody.innerHTML += `
           <tr>
             <td><div class="client-cell">${t.cliente || "No aplica"}</div></td>
-            <td>$${formatearMonto(t.monto)}</td>
+            <td><div class="money-cell">$${formatearMonto(t.monto)}</div></td>
             <td><div>${formatearFecha(t.fecha)}</div></td>
             <td>${estadoBadge}</td>
             <td><div>${t.recibo || "No aplica"}</div></td>
@@ -2606,10 +2741,10 @@
             <td class="obs-cell">${t.comentarios || "No aplica"}</td>
             <td>
               <div class="table-actions">
-                <button class="btn-info" onclick="abrirModalInfo('${t.id}')">Info</button>
-                <button class="btn-edit" onclick="editarTransferencia('${t.id}')">Editar</button>
-                <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">Estado</button>
-                ${esAdmin ? `<button class="btn-danger" onclick="abrirModalEliminar('${t.id}')">Eliminar</button>` : ""}
+                <button class="btn-info" onclick="abrirModalInfo('${t.id}')">ℹ Info</button>
+                <button class="btn-edit" onclick="editarTransferencia('${t.id}')">✎ Editar</button>
+                <button class="btn-estado" onclick="cambiarEstado('${t.id}', '${t.estado}')">↺ Estado</button>
+                ${esAdmin ? `<button class="btn-danger" onclick="abrirModalEliminar('${t.id}')">🗑 Eliminar</button>` : ""}
               </div>
             </td>
           </tr>
