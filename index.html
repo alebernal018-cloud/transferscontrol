@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TRANSFER CONTROL</title>
+  <title>TRANSFERCONTROL</title>
 
+  
+  <!-- FAVICON -->
+  <link rel="icon" type="image/png" sizes="32x32" href="perfilac3.png?v=1">
+  <link rel="icon" type="image/png" sizes="192x192" href="perfilac3.png?v=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="perfilac3.png?v=1">
+  <link rel="shortcut icon" href="perfilac3.png?v=1">
+  <meta name="theme-color" content="#5416DB">
+
+  <!-- SPACE GROTESK -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
     * {
       box-sizing: border-box;
     }
@@ -36,7 +44,6 @@
     }
 
     body {
-      font-family: 'Space Grotesk', sans-serif !important;
       font-family: "Space Grotesk", Arial, sans-serif;
       background:
         radial-gradient(circle at top left, rgba(84, 22, 219, 0.18), transparent 28%),
@@ -1495,122 +1502,121 @@
     }
 
   
-.top-right > * {
-  min-height: 46px !important;
-}
-
-.system-status,
-.user-avatar,
-.role-indicator,
-.admin-trigger,
-.btn-logout {
-  height: 46px !important;
-  border-radius: 14px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.user-avatar {
-  width: auto !important;
-  min-width: 120px !important;
-  padding: 0 16px !important;
-  border-radius: 14px !important;
-  font-size: 13px !important;
-  background: rgba(255,255,255,0.05);
-  color: #ffffff;
-}
-
-.admin-trigger {
-  width: 46px !important;
-  min-width: 46px !important;
-}
-
-.btn-logout {
-  min-width: 110px !important;
-  background: linear-gradient(180deg, #2a2a35, #1d1d27) !important;
-  border: 1px solid rgba(255,80,80,0.22) !important;
-  color: #ffffff !important;
-}
-
-.btn-logout:hover {
-  background: linear-gradient(180deg, #3a1d1d, #2a1111) !important;
-}
 
 
-/* ===== FINAL HEADER ===== */
+    /* =========================================
+       AJUSTES FINALES: PERFORMANCE + UI PREMIUM
+    ========================================= */
 
-body,
-button,
-input,
-textarea,
-select,
-table,
-th,
-td,
-label,
-div,
-span {
-  font-family: 'Space Grotesk', sans-serif !important;
-}
+    body,
+    button,
+    input,
+    textarea,
+    select,
+    table,
+    th,
+    td,
+    label,
+    div,
+    span {
+      font-family: 'Space Grotesk', Arial, sans-serif !important;
+    }
 
-.top-right {
-  gap: 8px !important;
-  align-items: center !important;
-}
+    .top-right {
+      gap: 8px !important;
+      align-items: center !important;
+    }
 
-.system-status,
-.user-avatar,
-.role-indicator,
-.admin-trigger,
-.btn-logout {
-  height: 40px !important;
-  border-radius: 12px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 12px !important;
-}
+    .system-status,
+    .user-avatar,
+    .role-indicator,
+    .admin-trigger,
+    .btn-logout {
+      height: 40px !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 12px !important;
+      line-height: 1 !important;
+    }
 
-.system-status {
-  padding: 0 13px !important;
-}
+    .system-status {
+      padding: 0 13px !important;
+      background: rgba(255,255,255,0.03) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      color: #e6e8f5 !important;
+    }
 
-.user-avatar {
-  width: auto !important;
-  min-width: unset !important;
-  max-width: 160px !important;
-  padding: 0 15px !important;
-  background: #fff !important;
-  color: var(--primary) !important;
-  font-weight: 800 !important;
-  border: none !important;
-}
+    .user-avatar {
+      width: auto !important;
+      min-width: unset !important;
+      max-width: 160px !important;
+      padding: 0 15px !important;
+      background: #ffffff !important;
+      color: var(--primary) !important;
+      font-weight: 800 !important;
+      border: none !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.16) !important;
+    }
 
-.role-indicator {
-  padding: 0 13px !important;
-  font-size: 11px !important;
-}
+    .role-indicator {
+      padding: 0 13px !important;
+      min-width: unset !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+    }
 
-.admin-trigger {
-  width: 40px !important;
-  min-width: 40px !important;
-  padding: 0 !important;
-  font-size: 17px !important;
-}
+    .admin-trigger {
+      width: 40px !important;
+      min-width: 40px !important;
+      padding: 0 !important;
+      font-size: 17px !important;
+    }
 
-.btn-logout {
-  padding: 0 16px !important;
-  min-width: 92px !important;
-  background: linear-gradient(180deg,#ff5a56,#d32f2f) !important;
-  color: #fff !important;
-}
+    .btn-logout {
+      padding: 0 16px !important;
+      min-width: 92px !important;
+      background: linear-gradient(180deg, #ff5a56, #d32f2f) !important;
+      color: white !important;
+      border: 1px solid rgba(255,255,255,0.06) !important;
+      box-shadow: 0 10px 22px rgba(229, 57, 53, 0.2) !important;
+    }
 
-.btn-logout:hover {
-  background: linear-gradient(180deg,#ff6b66,#d32f2f) !important;
-}
+    .btn-logout:hover {
+      background: linear-gradient(180deg, #ff6b66, #d32f2f) !important;
+      filter: brightness(1.04);
+    }
 
-</style>
+    .login-kicker {
+      display: none !important;
+    }
+
+    #loginCard .section-title {
+      text-align: center !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+      font-size: 24px !important;
+      font-weight: 800 !important;
+    }
+
+    .brand-subtitle,
+    .firma-ac3 {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Más fluidez: no animar filas al renderizar tablas grandes */
+    tbody tr {
+      animation: none !important;
+      transition: background-color 0.08s ease, box-shadow 0.08s ease !important;
+    }
+
+  </style>
 </head>
 
 <body>
@@ -2141,19 +2147,12 @@ function actualizarIndicadorRol() {
       if (!badge) return;
 
       const role = currentUserRole || "user";
-
       badge.className = `role-indicator role-${role}`;
       badge.textContent = obtenerEtiquetaRol(role);
       badge.style.display = "inline-flex";
       badge.title = `Rol actual: ${obtenerEtiquetaRol(role)}`;
 
-      const avatar = document.getElementById("userAvatar");
-
-      if (avatar) {
-        avatar.textContent = currentUserName || "Usuario";
-        avatar.title = currentUserEmail || "Usuario";
-      }
-    }
+      actualizarAvatar(currentUserName || "Usuario");
     }
 
 
@@ -2480,7 +2479,8 @@ function actualizarIndicadorRol() {
         ultimaActividad: new Date().toISOString()
       };
 
-      await guardarUsuarioApp(currentUserEmail, nombre, extra);
+      guardarUsuarioApp(currentUserEmail, nombre, extra)
+        .catch(error => console.error("No se pudo actualizar actividad del usuario:", error));
 
       return nombre;
     }
@@ -2516,12 +2516,10 @@ function actualizarIndicadorRol() {
       const avatar = document.getElementById("userAvatar");
       if (!avatar) return;
 
-      const estilo = obtenerEstiloAvatar(nombre);
-      avatar.textContent = estilo.inicial;
-      avatar.style.background = estilo.background;
-      avatar.style.color = estilo.color;
-      avatar.title = nombre;
-      avatar.setAttribute("aria-label", nombre);
+      const nombreMostrar = String(nombre || "Usuario").trim() || "Usuario";
+      avatar.textContent = nombreMostrar;
+      avatar.title = currentUserEmail || nombreMostrar;
+      avatar.setAttribute("aria-label", nombreMostrar);
     }
 
     function obtenerUltimaTransferenciaIngresada(lista) {
@@ -3109,8 +3107,19 @@ function actualizarIndicadorRol() {
         setSystemStatus("syncing", "Accediendo");
         btnLogin.disabled = true;
         btnLogin.textContent = "Ingresando...";
+
+        const loginFallback = setTimeout(() => {
+          if (btnLogin && btnLogin.disabled) {
+            btnLogin.disabled = false;
+            btnLogin.textContent = "Ingresar";
+            setSystemStatus("offline", "Revisa conexión");
+            showToast("El ingreso está tardando demasiado. Revisa tu conexión e intenta de nuevo.", "warn");
+          }
+        }, 12000);
+
         await setPersistence(auth, browserSessionPersistence);
         await signInWithEmailAndPassword(auth, email, password);
+        clearTimeout(loginFallback);
       } catch (error) {
         console.error("Error de login:", error);
         alert("Error de login: " + error.code + " | " + error.message);
