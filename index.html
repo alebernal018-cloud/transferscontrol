@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TRANSFERCONTROL</title>
+  <title>TRANSFER CONTROL</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +36,7 @@
     }
 
     body {
+      font-family: 'Space Grotesk', sans-serif !important;
       font-family: "Space Grotesk", Arial, sans-serif;
       background:
         radial-gradient(circle at top left, rgba(84, 22, 219, 0.18), transparent 28%),
@@ -1536,6 +1537,79 @@
   background: linear-gradient(180deg, #3a1d1d, #2a1111) !important;
 }
 
+
+/* ===== FINAL HEADER ===== */
+
+body,
+button,
+input,
+textarea,
+select,
+table,
+th,
+td,
+label,
+div,
+span {
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.top-right {
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.system-status,
+.user-avatar,
+.role-indicator,
+.admin-trigger,
+.btn-logout {
+  height: 40px !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+}
+
+.system-status {
+  padding: 0 13px !important;
+}
+
+.user-avatar {
+  width: auto !important;
+  min-width: unset !important;
+  max-width: 160px !important;
+  padding: 0 15px !important;
+  background: #fff !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+  border: none !important;
+}
+
+.role-indicator {
+  padding: 0 13px !important;
+  font-size: 11px !important;
+}
+
+.admin-trigger {
+  width: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  font-size: 17px !important;
+}
+
+.btn-logout {
+  padding: 0 16px !important;
+  min-width: 92px !important;
+  background: linear-gradient(180deg,#ff5a56,#d32f2f) !important;
+  color: #fff !important;
+}
+
+.btn-logout:hover {
+  background: linear-gradient(180deg,#ff6b66,#d32f2f) !important;
+}
+
 </style>
 </head>
 
@@ -2065,17 +2139,21 @@
 function actualizarIndicadorRol() {
       const badge = document.getElementById("roleIndicator");
       if (!badge) return;
+
       const role = currentUserRole || "user";
+
       badge.className = `role-indicator role-${role}`;
       badge.textContent = obtenerEtiquetaRol(role);
       badge.style.display = "inline-flex";
       badge.title = `Rol actual: ${obtenerEtiquetaRol(role)}`;
 
       const avatar = document.getElementById("userAvatar");
+
       if (avatar) {
         avatar.textContent = currentUserName || "Usuario";
         avatar.title = currentUserEmail || "Usuario";
       }
+    }
     }
 
 
