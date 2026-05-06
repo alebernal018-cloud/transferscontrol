@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -36,7 +36,7 @@
     }
 
     body {
-      font-family: "Tektur", Arial, sans-serif;
+      font-family: "Space Grotesk", Arial, sans-serif;
       background:
         radial-gradient(circle at top left, rgba(84, 22, 219, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(111, 70, 255, 0.12), transparent 24%),
@@ -1520,6 +1520,8 @@
             <button onclick="abrirModalUsuarios(); cerrarAdminMenu();">Usuarios</button>
             <button onclick="abrirModalAuditoria(); cerrarAdminMenu();">Auditoría</button>
             <button onclick="abrirModalHistorial(); cerrarAdminMenu();">Historial</button>
+            <button onclick="descargarPlantillaCSV(); cerrarAdminMenu();">Descargar plantilla CSV</button>
+            <button onclick="abrirSelectorImportacionCSV(); cerrarAdminMenu();">Importar CSV</button>
             <button onclick="exportarCSV(); cerrarAdminMenu();">Exportar CSV</button>
             <button onclick="crearRespaldo(); cerrarAdminMenu();">Crear respaldo</button>
           </div>
@@ -1535,6 +1537,8 @@
     <div id="globalPopupBody"></div>
     <div class="global-popup-sub" id="globalPopupSub"></div>
   </div>
+
+  <input type="file" id="csvImportInput" accept=".csv,text/csv" style="display:none;" onchange="importarCSVDesdeInput(event)">
 
   <div class="container">
     <div class="card card-accent-primary" id="loginCard">
@@ -3090,6 +3094,285 @@
 
       registrarActividadUsuario().catch(e => console.warn("Actividad CSV:", e));
       showToast("CSV exportado.", "success");
+    };
+
+
+    function descargarArchivoTexto(nombreArchivo, contenido, tipo = "text/csv;charset=utf-8;") {
+      const blob = new Blob([contenido], { type: tipo });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute("download", nombreArchivo);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    window.descargarPlantillaCSV = function() {
+      if (!esAdmin) {
+        showToast("Solo admin puede descargar la plantilla.", "warn");
+        return;
+      }
+
+      const headers = ["Cliente","Monto","Fecha Recibida","Estado","N° Recibo","Fecha Recibo","ID / Banco","Observaciones"];
+      const ejemplo = ["Juan Pérez","250.00","2026-05-05","Pendiente","R-001","2026-05-05","BAC","Pago pendiente de revisar"];
+      const vacia = ["","","","Pendiente","","","",""];
+      const csv = [headers, ejemplo, vacia]
+        .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      descargarArchivoTexto("plantilla_transfercontrol.csv", "\ufeff" + csv);
+      showToast("Plantilla CSV descargada.", "success");
+    };
+
+    window.abrirSelectorImportacionCSV = function() {
+      if (!esAdmin) {
+        showToast("Solo admin puede importar CSV.", "warn");
+        return;
+      }
+
+      const input = document.getElementById("csvImportInput");
+      if (!input) return;
+      input.value = "";
+      input.click();
+    };
+
+    function parseCSV(texto) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < texto.length; i++) {
+        const char = texto[i];
+        const next = texto[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            value += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          row.push(value.trim());
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") i++;
+          row.push(value.trim());
+          if (row.some(cell => cell !== "")) rows.push(row);
+          row = [];
+          value = "";
+        } else {
+          value += char;
+        }
+      }
+
+      row.push(value.trim());
+      if (row.some(cell => cell !== "")) rows.push(row);
+      return rows;
+    }
+
+    function normalizarHeaderCSV(header) {
+      return String(header || "")
+        .replace(/^\ufeff/, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+    }
+
+    function obtenerValorFilaCSV(obj, posiblesHeaders) {
+      for (const header of posiblesHeaders) {
+        const key = normalizarHeaderCSV(header);
+        if (Object.prototype.hasOwnProperty.call(obj, key)) return String(obj[key] || "").trim();
+      }
+      return "";
+    }
+
+    function normalizarFechaImportacion(valor) {
+      const limpio = String(valor || "").trim();
+      if (!limpio) return "No aplica";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(limpio)) return limpio;
+
+      const match = limpio.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (match) {
+        const dia = match[1].padStart(2, "0");
+        const mes = match[2].padStart(2, "0");
+        const anio = match[3];
+        return `${anio}-${mes}-${dia}`;
+      }
+
+      return null;
+    }
+
+    function normalizarEstadoImportacion(valor) {
+      const estado = String(valor || "Pendiente").trim().toLowerCase();
+      if (estado === "aplicada" || estado === "aplicado") return "Aplicada";
+      if (estado === "pendiente" || estado === "") return "Pendiente";
+      return null;
+    }
+
+    function construirTransferenciasDesdeCSV(texto) {
+      const rows = parseCSV(texto);
+      if (rows.length < 2) {
+        return { transferenciasValidas: [], errores: ["El archivo no contiene registros para importar."] };
+      }
+
+      const headers = rows[0].map(normalizarHeaderCSV);
+      const transferenciasValidas = [];
+      const errores = [];
+      const recibosVistos = new Set(
+        transferencias
+          .map(t => normalizarCampo(t.recibo))
+          .filter(r => r && r !== "no aplica")
+      );
+
+      rows.slice(1).forEach((row, index) => {
+        const filaNumero = index + 2;
+        const obj = {};
+        headers.forEach((header, i) => { obj[header] = row[i] || ""; });
+
+        const cliente = obtenerValorFilaCSV(obj, ["Cliente"]) || "No aplica";
+        const montoTexto = limpiarMontoTexto(obtenerValorFilaCSV(obj, ["Monto"]));
+        const fecha = normalizarFechaImportacion(obtenerValorFilaCSV(obj, ["Fecha Recibida", "FechaRecibida"]));
+        const estado = normalizarEstadoImportacion(obtenerValorFilaCSV(obj, ["Estado"]));
+        const recibo = obtenerValorFilaCSV(obj, ["N° Recibo", "Numero Recibo", "NumeroRecibo", "No Recibo"]) || "No aplica";
+        const fechaRecibo = normalizarFechaImportacion(obtenerValorFilaCSV(obj, ["Fecha Recibo", "FechaRecibo"]));
+        const banco = obtenerValorFilaCSV(obj, ["ID / Banco", "ID o Banco", "IdOBanco", "Banco"]) || "No aplica";
+        const comentarios = obtenerValorFilaCSV(obj, ["Observaciones", "Comentarios", "Observaciones / Comentarios"]) || "No aplica";
+
+        if (montoTexto !== "" && (isNaN(Number(montoTexto)) || Number(montoTexto) < 0)) {
+          errores.push(`Fila ${filaNumero}: monto inválido.`);
+          return;
+        }
+
+        if (!fecha) {
+          errores.push(`Fila ${filaNumero}: fecha recibida inválida. Usa AAAA-MM-DD.`);
+          return;
+        }
+
+        if (!fechaRecibo) {
+          errores.push(`Fila ${filaNumero}: fecha recibo inválida. Usa AAAA-MM-DD o deja vacío.`);
+          return;
+        }
+
+        if (!estado) {
+          errores.push(`Fila ${filaNumero}: estado inválido. Usa Pendiente o Aplicada.`);
+          return;
+        }
+
+        const reciboNormalizado = normalizarCampo(recibo);
+        if (reciboNormalizado && reciboNormalizado !== "no aplica" && recibosVistos.has(reciboNormalizado)) {
+          errores.push(`Fila ${filaNumero}: N° Recibo duplicado (${recibo}).`);
+          return;
+        }
+
+        if (reciboNormalizado && reciboNormalizado !== "no aplica") recibosVistos.add(reciboNormalizado);
+
+        const transferencia = {
+          cliente,
+          monto: montoTexto ? Number(montoTexto) : 0,
+          fecha,
+          estado,
+          recibo,
+          fechaRecibo,
+          banco,
+          comentarios
+        };
+
+        if (!validarDatos({ cliente, monto: montoTexto, fecha, fechaRecibo })) {
+          errores.push(`Fila ${filaNumero}: datos no válidos.`);
+          return;
+        }
+
+        transferenciasValidas.push(transferencia);
+      });
+
+      return { transferenciasValidas, errores };
+    }
+
+    async function importarTransferenciasCSV(transferenciasValidas) {
+      const ahoraBase = new Date().toISOString();
+      const usuarioNombre = currentUserName || generarNombreAutomaticoDesdeCorreo(currentUserEmail);
+      const usuarioEmail = currentUserEmail || "No aplica";
+      const creadas = [];
+      const chunkSize = 40;
+
+      for (let i = 0; i < transferenciasValidas.length; i += chunkSize) {
+        const chunk = transferenciasValidas.slice(i, i + chunkSize);
+        const refs = await Promise.all(chunk.map((item, offset) => {
+          const sello = new Date(Date.now() + i + offset).toISOString();
+          return addDoc(collection(db, "transferencias"), {
+            ...item,
+            createdByName: usuarioNombre,
+            createdByEmail: usuarioEmail,
+            createdAt: sello || ahoraBase,
+            updatedByName: usuarioNombre,
+            updatedByEmail: usuarioEmail,
+            updatedAt: sello || ahoraBase,
+            importedFromCSV: true
+          });
+        }));
+        creadas.push(...refs);
+      }
+
+      await registrarHistorial("importar_csv", "importacion_masiva", {
+        totalImportado: creadas.length,
+        origen: "CSV",
+        usuario: usuarioEmail
+      });
+
+      return creadas.length;
+    }
+
+    window.importarCSVDesdeInput = async function(event) {
+      if (!esAdmin) {
+        showToast("Solo admin puede importar CSV.", "warn");
+        return;
+      }
+
+      const archivo = event?.target?.files?.[0];
+      if (!archivo) return;
+
+      if (!archivo.name.toLowerCase().endsWith(".csv")) {
+        showToast("Selecciona un archivo CSV válido.", "warn");
+        return;
+      }
+
+      try {
+        const texto = await archivo.text();
+        const { transferenciasValidas, errores } = construirTransferenciasDesdeCSV(texto);
+
+        if (!transferenciasValidas.length) {
+          abrirModalAviso("Importación CSV", errores.slice(0, 8).join("\n") || "No se encontraron registros válidos.");
+          return;
+        }
+
+        const pendientes = transferenciasValidas.filter(t => t.estado === "Pendiente").length;
+        const aplicadas = transferenciasValidas.filter(t => t.estado === "Aplicada").length;
+        const resumen = `Se importarán ${transferenciasValidas.length} registros.\nPendientes: ${pendientes}\nAplicadas: ${aplicadas}\nFilas omitidas/advertencias: ${errores.length}\n\n¿Confirmas la importación?`;
+
+        if (!confirm(resumen)) return;
+
+        setSystemStatus("syncing", "Importando CSV...");
+        const totalImportado = await importarTransferenciasCSV(transferenciasValidas);
+        setSystemStatus("ok", "Sincronizado");
+
+        const mensajeErrores = errores.length ? ` ${errores.length} filas fueron omitidas.` : "";
+        showToast(`${totalImportado} registros importados.${mensajeErrores}`, "success");
+
+        if (errores.length) {
+          console.warn("Errores/omisiones durante importación CSV:", errores);
+        }
+      } catch (error) {
+        console.error("Error al importar CSV:", error);
+        setSystemStatus("ok", "Sincronizado");
+        showToast("Error al importar CSV.", "error");
+      }
     };
 
     window.guardarTransferencia = async function() {
