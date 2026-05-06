@@ -1690,6 +1690,18 @@ tbody tr,
   font-size: 11px !important;
 }
 
+
+/* Perfil clickeable para cambiar nombre */
+.user-avatar {
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  cursor: pointer !important;
+}
+
+.user-avatar:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(84,22,219,0.22), 0 7px 16px rgba(0,0,0,0.14) !important;
+}
+
 </style>
 </head>
 
@@ -1707,7 +1719,7 @@ tbody tr,
           <span id="systemStatusText">Sincronizado</span>
         </div>
 
-        <div id="userAvatar" class="user-avatar" title="Usuario"></div>
+        <button type="button" id="userAvatar" class="user-avatar" title="Cambiar nombre" onclick="abrirCambioNombreSimbolico()"></button>
         <div id="roleIndicator" class="role-indicator" style="display:none;">USER</div>
 
         <div class="admin-menu" id="adminMenuWrap" style="display:none;">
@@ -1907,7 +1919,7 @@ tbody tr,
       </div>
 
       <div class="modal-message" style="text-align:center;">
-        Ingresa un nombre simbólico para identificar tus movimientos dentro del sistema.
+        Ingresa o actualiza tu nombre simbólico para identificar tus movimientos dentro del sistema.
       </div>
 
       <label>Nombre simbólico</label>
@@ -2202,6 +2214,7 @@ tbody tr,
     let unsubscribeTransferencias = null;
     let unsubscribeHistorial = null;
     let unsubscribeUsuarios = null;
+    let unsubscribePerfilUsuarioActual = null;
     let currentUserEmail = "";
     let currentUserName = "";
     let necesitaNombreSimbolico = false;
@@ -2597,6 +2610,74 @@ async function guardarUsuarioApp(email, nombre, extra = {}) {
       } catch (err) {
         console.warn("No se pudo guardar perfil de usuario:", err.code || err.message);
       }
+    }
+
+
+
+    window.abrirCambioNombreSimbolico = function abrirCambioNombreSimbolico() {
+      if (!auth.currentUser) {
+        showGlobalPopup("Sesión no disponible", "Vuelve a iniciar sesión para cambiar tu nombre.", "");
+        return;
+      }
+
+      abrirModalNombreSimbolico(currentUserName || resolverNombreUsuario({}, currentUserEmail));
+    };
+
+    function iniciarEscuchaPerfilUsuarioActual(user) {
+      if (!user || !user.email) return;
+
+      if (unsubscribePerfilUsuarioActual) {
+        unsubscribePerfilUsuarioActual();
+        unsubscribePerfilUsuarioActual = null;
+      }
+
+      const emailId = String(user.email || "").toLowerCase();
+      const ref = doc(db, "usuarios_app", emailId);
+
+      unsubscribePerfilUsuarioActual = onSnapshot(ref, async (snap) => {
+        const data = snap.exists() ? snap.data() : {};
+        const rolAnterior = currentUserRole;
+        const nombreAnterior = currentUserName;
+
+        currentUserEmail = emailId;
+        currentUserRole = data.role || obtenerRolDefault(user.email);
+
+        const nombreGuardado = limpiarNombreSimbolico(
+          data.nombreSimbolico ||
+          data.nombre ||
+          data.displayName ||
+          data.username ||
+          data.name ||
+          ""
+        );
+
+        if (nombreGuardado) {
+          currentUserName = nombreGuardado;
+          necesitaNombreSimbolico = false;
+        } else {
+          currentUserName = generarNombreAutomaticoDesdeCorreo(emailId);
+          necesitaNombreSimbolico = true;
+          abrirModalNombreSimbolico(currentUserName);
+        }
+
+        actualizarIndicadorRol();
+        applyRoleVisibility();
+        renderTabla();
+
+        if (rolAnterior && rolAnterior !== currentUserRole) {
+          showGlobalPopup(
+            "Rol actualizado",
+            `Tu rol ahora es ${obtenerEtiquetaRol(currentUserRole)}.`,
+            ""
+          );
+        }
+
+        if (nombreAnterior && nombreGuardado && nombreAnterior !== nombreGuardado) {
+          showGlobalPopup("Nombre actualizado", `Ahora apareces como ${nombreGuardado}.`, "");
+        }
+      }, (error) => {
+        console.warn("No se pudo escuchar el perfil del usuario:", error.code || error.message);
+      });
     }
 
 
@@ -4084,6 +4165,7 @@ async function obtenerONombreUsuario() {
           currentUserRole = obtenerRolDefault(currentUserEmail);
 
           currentUserName = await obtenerONombreUsuario();
+          iniciarEscuchaPerfilUsuarioActual(user);
           actualizarAvatar(currentUserName);
           actualizarIndicadorRol();
 
