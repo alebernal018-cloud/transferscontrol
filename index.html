@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TRANSFERCONTROL</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
@@ -32,7 +36,7 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Tektur", Arial, sans-serif;
       background:
         radial-gradient(circle at top left, rgba(84, 22, 219, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(111, 70, 255, 0.12), transparent 24%),
@@ -1925,7 +1929,9 @@
       getAuth,
       signInWithEmailAndPassword,
       signOut,
-      onAuthStateChanged
+      onAuthStateChanged,
+      setPersistence,
+      browserSessionPersistence
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore,
@@ -1952,6 +1958,12 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // Opción B: la sesión solo se conserva mientras el navegador permanezca abierto.
+    // Al cerrar completamente el navegador, Firebase volverá a pedir credenciales.
+    setPersistence(auth, browserSessionPersistence).catch((error) => {
+      console.error("No se pudo configurar la persistencia de sesión:", error);
+    });
 
     const ADMIN_EMAIL = "alebernal018@gmail.com";
 
@@ -2380,12 +2392,26 @@
       avatar.setAttribute("aria-label", nombre);
     }
 
+    function obtenerUltimaTransferenciaIngresada(lista) {
+      return [...lista].sort((a, b) => {
+        const createdA = String(a?.createdAt || "");
+        const createdB = String(b?.createdAt || "");
+        if (createdA !== createdB) return createdB.localeCompare(createdA);
+
+        const updatedA = String(a?.updatedAt || "");
+        const updatedB = String(b?.updatedAt || "");
+        if (updatedA !== updatedB) return updatedB.localeCompare(updatedA);
+
+        return String(b?.id || "").localeCompare(String(a?.id || ""));
+      })[0];
+    }
+
     function actualizarDashboard() {
       const total = transferencias.length;
       const pendientes = transferencias.filter(t => t.estado === "Pendiente").length;
       const aplicadas = transferencias.filter(t => t.estado === "Aplicada").length;
       const montoTotal = transferencias.reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
-      const ultimaTransferencia = ordenarTransferenciasInteligente(transferencias)[0];
+      const ultimaTransferencia = obtenerUltimaTransferenciaIngresada(transferencias);
 
       const ultimaTexto = ultimaTransferencia
         ? `${ultimaTransferencia.cliente || "Sin cliente"} · $${formatearMonto(ultimaTransferencia.monto || 0)}`
@@ -2951,6 +2977,7 @@
         setSystemStatus("syncing", "Accediendo");
         btnLogin.disabled = true;
         btnLogin.textContent = "Ingresando...";
+        await setPersistence(auth, browserSessionPersistence);
         await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
         console.error("Error de login:", error);
