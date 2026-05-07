@@ -1859,6 +1859,70 @@ header {
   }
 }
 
+
+/* =========================================
+   CORRECCIÓN HEADER: SALIR SOLO EN PANEL + SEPARADO
+========================================= */
+
+.header-shell {
+  width: calc(100% - 220px) !important;
+  max-width: 1520px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+}
+
+.brand-logo-tab {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  box-shadow: none !important;
+}
+
+.top-right {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: flex;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+}
+
+.header-logout-separated {
+  position: static !important;
+  transform: none !important;
+  margin-left: 34px !important;
+}
+
+.header-logout-separated:hover {
+  transform: none !important;
+}
+
+@media (max-width: 1100px) {
+  .header-shell {
+    width: calc(100% - 44px) !important;
+  }
+
+  .header-logout-separated {
+    margin-left: 18px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .header-shell {
+    width: calc(100% - 28px) !important;
+  }
+
+  .header-logout-separated {
+    margin-left: 10px !important;
+  }
+}
+
 </style>
 </head>
 
@@ -1895,10 +1959,8 @@ header {
             <button onclick="crearRespaldo(); cerrarAdminMenu();">Crear respaldo</button>
           </div>
         </div>
-
+        <button class="btn-logout header-logout-separated" onclick="logout()">Salir</button>
       </div>
-
-      <button class="btn-logout header-logout-fixed" onclick="logout()">Salir</button>
     </div>
   </header>
 
@@ -2409,6 +2471,28 @@ header {
       return 0;
     }
 
+    function obtenerTiempoOrdenRespaldo(t) {
+      const candidatos = [
+        t.fechaRecibo,
+        t.fechaAplicada,
+        t.fechaAplicacion,
+        t.fecha,
+        t.fechaRecibida
+      ];
+
+      for (const valor of candidatos) {
+        if (!valor) continue;
+
+        if (typeof valor.toMillis === "function") return valor.toMillis();
+        if (typeof valor.seconds === "number") return valor.seconds * 1000;
+
+        const parsed = Date.parse(valor);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+
+      return 0;
+    }
+
     function prioridadEstado(t) {
       const estado = String(t.estado || "").trim().toLowerCase();
       return estado === "pendiente" || estado === "no aplicada" || estado === "no aplicado" ? 0 : 1;
@@ -2424,16 +2508,29 @@ header {
         // 1) Pendientes / no aplicadas siempre arriba.
         if (prioridadA !== prioridadB) return prioridadA - prioridadB;
 
-        // 2) Dentro de cada grupo, ordenar por momento real de registro:
-        // último documento creado arriba, más antiguo abajo.
-        const registroB = obtenerTiempoRegistro(b);
-        const registroA = obtenerTiempoRegistro(a);
+        // 2) Para registros nuevos, usar el momento real en que se guardó el documento.
+        const creadoB = obtenerTiempoRegistro(b);
+        const creadoA = obtenerTiempoRegistro(a);
 
-        if (registroB !== registroA) return registroB - registroA;
+        if (creadoB && creadoA && creadoB !== creadoA) {
+          return creadoB - creadoA;
+        }
 
-        // 3) Respaldo estable si los datos antiguos no tienen createdAt:
-        // usa el ID del documento, porque Firestore genera IDs con dispersión pero
-        // mantiene una comparación consistente sin depender de fecha recibida/aplicada.
+        // 3) Para registros antiguos sin createdAt, usar fecha recibo/aplicada/recibida
+        // para que los registros del día más reciente queden arriba.
+        const respaldoB = obtenerTiempoOrdenRespaldo(b);
+        const respaldoA = obtenerTiempoOrdenRespaldo(a);
+
+        if (respaldoB !== respaldoA) return respaldoB - respaldoA;
+
+        // 4) Si están en la misma fecha y no tienen createdAt, usar recibo como desempate.
+        const reciboB = String(b.recibo || "").replace(/\D/g, "");
+        const reciboA = String(a.recibo || "").replace(/\D/g, "");
+        const numB = reciboB ? Number(reciboB) : 0;
+        const numA = reciboA ? Number(reciboA) : 0;
+
+        if (numB !== numA) return numB - numA;
+
         return String(b.id || "").localeCompare(String(a.id || ""));
       });
     }
