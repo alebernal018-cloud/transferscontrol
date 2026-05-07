@@ -1780,6 +1780,85 @@ header {
   }
 }
 
+
+/* =========================================
+   CORRECCIÓN HEADER FINAL: LOGO COMPLETO + SALIR SEPARADO
+========================================= */
+
+.header-shell {
+  position: relative !important;
+  width: calc(100% - 220px) !important;
+  max-width: 1520px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.brand-block-with-logo {
+  overflow: visible !important;
+}
+
+.brand-logo-tab {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  filter: drop-shadow(0 0 8px rgba(84,22,219,0.42)) !important;
+}
+
+.top-right {
+  margin-left: auto !important;
+  margin-right: 98px !important;
+  justify-content: flex-end !important;
+}
+
+.header-logout-fixed {
+  position: absolute !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin-left: 0 !important;
+  z-index: 5 !important;
+}
+
+.header-logout-fixed:hover {
+  transform: translateY(-50%) !important;
+}
+
+@media (max-width: 1100px) {
+  .header-shell {
+    width: calc(100% - 44px) !important;
+  }
+
+  .top-right {
+    margin-right: 86px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .header-shell {
+    width: calc(100% - 28px) !important;
+  }
+
+  .top-right {
+    margin-right: 76px !important;
+  }
+
+  .brand-logo-tab {
+    width: 34px !important;
+    height: 34px !important;
+    flex-basis: 34px !important;
+    display: block !important;
+  }
+}
+
 </style>
 </head>
 
@@ -1817,8 +1896,9 @@ header {
           </div>
         </div>
 
-        <button class="btn-logout" onclick="logout()">Salir</button>
       </div>
+
+      <button class="btn-logout header-logout-fixed" onclick="logout()">Salir</button>
     </div>
   </header>
 
@@ -2306,14 +2386,14 @@ header {
     function obtenerTiempoRegistro(t) {
       const candidatos = [
         t.createdAt,
+        t.creadoFecha,
         t.fechaCreacion,
         t.creadoEn,
         t.created_at,
         t.timestamp,
         t.fechaRegistro,
         t.created,
-        t.creado,
-        t.updatedAt
+        t.creado
       ];
 
       for (const valor of candidatos) {
@@ -2334,28 +2414,7 @@ header {
       return estado === "pendiente" || estado === "no aplicada" || estado === "no aplicado" ? 0 : 1;
     }
 
-    function obtenerTiempoAplicacion(t) {
-      const candidatos = [
-        t.fechaRecibo,
-        t.fechaAplicada,
-        t.fechaAplicacion,
-        t.appliedAt,
-        t.aplicadaEn,
-        t.fechaComprobante
-      ];
-
-      for (const valor of candidatos) {
-        if (!valor) continue;
-
-        if (typeof valor.toMillis === "function") return valor.toMillis();
-        if (typeof valor.seconds === "number") return valor.seconds * 1000;
-
-        const parsed = Date.parse(valor);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-
-      return 0;
-    }
+    
 
     function ordenarTransferenciasVista(lista) {
       return [...lista].sort((a, b) => {
@@ -2365,32 +2424,17 @@ header {
         // 1) Pendientes / no aplicadas siempre arriba.
         if (prioridadA !== prioridadB) return prioridadA - prioridadB;
 
-        // 2) Si ambas son pendientes, ordenar por momento de registro.
-        if (prioridadA === 0 && prioridadB === 0) {
-          const registroB = obtenerTiempoRegistro(b);
-          const registroA = obtenerTiempoRegistro(a);
-
-          if (registroB !== registroA) return registroB - registroA;
-        }
-
-        // 3) Si ambas están aplicadas, ordenar por fecha aplicada / fecha recibo.
-        if (prioridadA === 1 && prioridadB === 1) {
-          const aplicadaB = obtenerTiempoAplicacion(b);
-          const aplicadaA = obtenerTiempoAplicacion(a);
-
-          if (aplicadaB !== aplicadaA) return aplicadaB - aplicadaA;
-        }
-
-        // 4) Respaldo para datos antiguos incompletos.
+        // 2) Dentro de cada grupo, ordenar por momento real de registro:
+        // último documento creado arriba, más antiguo abajo.
         const registroB = obtenerTiempoRegistro(b);
         const registroA = obtenerTiempoRegistro(a);
 
         if (registroB !== registroA) return registroB - registroA;
 
-        const fechaB = Date.parse(b.fecha || "") || 0;
-        const fechaA = Date.parse(a.fecha || "") || 0;
-
-        return fechaB - fechaA;
+        // 3) Respaldo estable si los datos antiguos no tienen createdAt:
+        // usa el ID del documento, porque Firestore genera IDs con dispersión pero
+        // mantiene una comparación consistente sin depender de fecha recibida/aplicada.
+        return String(b.id || "").localeCompare(String(a.id || ""));
       });
     }
 
