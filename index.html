@@ -1989,6 +1989,287 @@ header::after {
   .btn-logout { min-width: 74px !important; padding: 0 14px !important; }
 }
 
+
+
+/* =========================================
+   HEADER DEFINITIVO COMPACTO — ACEVISUALS
+   Corrección real: logo a la izquierda del título,
+   botones solo después de login, alineación derecha.
+========================================= */
+header {
+  min-height: 78px !important;
+  height: 78px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  background: rgba(10,10,16,0.98) !important;
+  border-bottom: 1px solid rgba(84,22,219,0.45) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.20) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 500 !important;
+}
+
+header::after {
+  height: 1px !important;
+  background: linear-gradient(90deg, rgba(84,22,219,0), rgba(84,22,219,0.75), rgba(84,22,219,0)) !important;
+  opacity: 0.85 !important;
+}
+
+.header-shell {
+  width: min(1460px, calc(100% - 72px)) !important;
+  max-width: 1460px !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  flex-wrap: nowrap !important;
+}
+
+.brand-block,
+.brand-block-with-logo {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.brand-logo-tab {
+  display: block !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  flex: 0 0 42px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  filter: drop-shadow(0 0 8px rgba(84,22,219,0.45)) !important;
+}
+
+.brand-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.brand-title {
+  font-size: 22px !important;
+  line-height: 1 !important;
+  letter-spacing: 1px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
+.brand-subtitle {
+  font-size: 12px !important;
+  line-height: 1.1 !important;
+  color: #a9aec7 !important;
+  margin: 0 !important;
+}
+
+/* Respeta el display:none del HTML antes de iniciar sesión */
+#topRight[style*="display:none"],
+#topRight[style*="display: none"] {
+  display: none !important;
+}
+
+.top-right {
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0 !important;
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+.header-actions-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 9px !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+}
+
+.header-logout-zone {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  margin-left: 30px !important;
+  flex: 0 0 auto !important;
+}
+
+.role-indicator {
+  display: none !important;
+}
+
+.system-status,
+.user-avatar,
+.admin-trigger,
+.btn-logout {
+  height: 34px !important;
+  min-height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1px !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+
+.system-status {
+  gap: 7px !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.035) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: #e4e7f5 !important;
+  box-shadow: none !important;
+}
+
+.status-dot {
+  width: 7px !important;
+  height: 7px !important;
+  background: #47c266 !important;
+  box-shadow: 0 0 8px rgba(71,194,102,0.45) !important;
+}
+
+.user-avatar {
+  width: auto !important;
+  min-width: 118px !important;
+  max-width: 205px !important;
+  padding: 0 15px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #ffffff, #e8e5f5) !important;
+  color: var(--primary) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: 0 9px 18px rgba(0,0,0,0.18) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+}
+
+.admin-trigger {
+  width: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+  border-radius: 11px !important;
+  font-size: 17px !important;
+  background: linear-gradient(180deg, rgba(84,22,219,0.36), rgba(39,16,87,0.78)) !important;
+  color: #f7f3ff !important;
+  border: 1px solid rgba(111,70,255,0.36) !important;
+  box-shadow: 0 10px 20px rgba(84,22,219,0.16) !important;
+}
+
+.btn-logout {
+  min-width: 78px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #ff5d5c, #dc3638) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 10px 20px rgba(220,54,56,0.22) !important;
+}
+
+.btn-logout:hover,
+.admin-trigger:hover,
+.user-avatar:hover,
+.system-status:hover {
+  transform: none !important;
+  filter: brightness(1.03) !important;
+}
+
+.admin-dropdown {
+  top: calc(100% + 10px) !important;
+  right: 0 !important;
+}
+
+@media (max-width: 980px) {
+  header {
+    height: auto !important;
+    min-height: 76px !important;
+    padding: 12px 0 !important;
+  }
+
+  .header-shell {
+    width: calc(100% - 32px) !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  .top-right {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .header-actions-group {
+    gap: 8px !important;
+  }
+
+  .header-logout-zone {
+    margin-left: 14px !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .brand-logo-tab {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    flex-basis: 36px !important;
+  }
+
+  .brand-title {
+    font-size: 17px !important;
+    white-space: normal !important;
+  }
+
+  .brand-subtitle {
+    font-size: 11px !important;
+  }
+
+  .system-status,
+  .user-avatar,
+  .admin-trigger,
+  .btn-logout {
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 10px !important;
+  }
+
+  .user-avatar {
+    min-width: 0 !important;
+    max-width: 145px !important;
+    padding: 0 11px !important;
+  }
+
+  .btn-logout {
+    min-width: 70px !important;
+    padding: 0 13px !important;
+  }
+}
+
 </style>
 </head>
 
