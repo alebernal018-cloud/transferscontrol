@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Transfers Control</title>
+
   <!-- FAVICON -->
-  <link rel="icon" type="image/png" sizes="32x32" href="perfilac3.png?v=1">
-  <link rel="icon" type="image/png" sizes="192x192" href="perfilac3.png?v=1">
-  <link rel="apple-touch-icon" sizes="180x180" href="perfilac3.png?v=1">
-  <link rel="shortcut icon" href="perfilac3.png?v=1">
-  <meta name="theme-color" content="#5416DB">
+  <link rel="icon" type="image/png" sizes="32x32" href="new%20ace%20TRANSFER.png?v=3">
+  <link rel="icon" type="image/png" sizes="64x64" href="new%20ace%20TRANSFER.png?v=3">
+  <link rel="icon" type="image/png" sizes="192x192" href="new%20ace%20TRANSFER.png?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="new%20ace%20TRANSFER.png?v=3">
+  <link rel="shortcut icon" href="new%20ace%20TRANSFER.png?v=3">
+
+
+<meta name="theme-color" content="#5416DB">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2221,6 +2225,53 @@ tbody tr,
     let snapshotInicialCargado = false;
     let paginaActual = 1;
     const REGISTROS_POR_PAGINA = 25;
+
+    function obtenerTiempoRegistro(t) {
+      const candidatos = [
+        t.createdAt,
+        t.fechaCreacion,
+        t.creadoEn,
+        t.created_at,
+        t.timestamp,
+        t.fechaRegistro,
+        t.updatedAt
+      ];
+
+      for (const valor of candidatos) {
+        if (!valor) continue;
+        if (typeof valor.toMillis === "function") return valor.toMillis();
+        if (typeof valor.seconds === "number") return valor.seconds * 1000;
+
+        const parsed = Date.parse(valor);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+
+      return 0;
+    }
+
+    function prioridadEstado(t) {
+      return String(t.estado || "").toLowerCase() === "pendiente" ? 0 : 1;
+    }
+
+    function ordenarTransferenciasVista(lista) {
+      return [...lista].sort((a, b) => {
+        const estadoA = prioridadEstado(a);
+        const estadoB = prioridadEstado(b);
+
+        if (estadoA !== estadoB) return estadoA - estadoB;
+
+        const tiempoB = obtenerTiempoRegistro(b);
+        const tiempoA = obtenerTiempoRegistro(a);
+
+        if (tiempoB !== tiempoA) return tiempoB - tiempoA;
+
+        const fechaB = Date.parse(b.fecha || "") || 0;
+        const fechaA = Date.parse(a.fecha || "") || 0;
+
+        return fechaB - fechaA;
+      });
+    }
+
 
 
     const ROLE_PERMISSIONS = {
