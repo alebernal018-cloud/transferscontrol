@@ -1504,52 +1504,26 @@
     }
 
   
+
 /* =========================================
-   AJUSTE FINAL LIMPIO: RENDIMIENTO + HEADER + NOTIFICACIÓN
+   BLOQUE FINAL DEPURADO: RENDIMIENTO + HEADER
+   Mantiene funciones, elimina conflictos de parches anteriores.
 ========================================= */
-body,
-button,
-input,
-textarea,
-select,
-table,
-th,
-td,
-label {
-  font-family: 'Space Grotesk', Arial, sans-serif !important;
+body, button, input, textarea, select, table, th, td, label {
+  font-family: "Space Grotesk", Arial, sans-serif;
 }
 
-.card,
-.dash-card,
-.modal-content,
-.table-wrapper,
-#loginCard,
-tbody tr {
+.card, .dash-card, .modal-content, .table-wrapper, #loginCard, tbody tr {
   animation: none !important;
 }
 
-header,
-.card,
-.dash-card,
-.modal-content,
-.table-wrapper,
-#loginCard,
-.global-popup,
-.toast,
-.admin-dropdown,
-.row-dropdown {
+header, .card, .dash-card, .modal-content, .table-wrapper, #loginCard,
+.global-popup, .toast, .admin-dropdown, .row-dropdown, .firma-ac3 {
   backdrop-filter: none !important;
 }
 
-button,
-input,
-select,
-textarea,
-tbody tr,
-.dash-card,
-.modal,
-.modal-content {
-  transition-duration: 0.05s !important;
+button, input, select, textarea, tbody tr, .dash-card, .modal, .modal-content {
+  transition-duration: 0.06s !important;
 }
 
 .dash-card:hover,
@@ -1568,9 +1542,69 @@ tbody tr,
   transform: none !important;
 }
 
-.top-right {
-  gap: 6px !important;
+header {
+  padding: 16px 0 14px !important;
+}
+
+.header-shell {
+  width: min(1520px, calc(100% - 88px)) !important;
+  max-width: 1520px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(260px, 1fr) auto auto !important;
   align-items: center !important;
+  column-gap: 14px !important;
+  position: relative !important;
+}
+
+.brand-block-with-logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.brand-logo-tab {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  filter: drop-shadow(0 0 8px rgba(84,22,219,0.42)) !important;
+}
+
+.brand-copy {
+  min-width: 0 !important;
+}
+
+.top-right {
+  display: flex;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+.header-actions-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+}
+
+.header-logout-zone {
+  display: inline-flex !important;
+  justify-content: flex-end !important;
+  margin-left: 44px !important;
 }
 
 .role-indicator {
@@ -1581,19 +1615,21 @@ tbody tr,
 .user-avatar,
 .admin-trigger,
 .btn-logout {
-  height: 30px !important;
-  min-height: 30px !important;
-  border-radius: 999px !important;
+  height: 31px !important;
+  min-height: 31px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   line-height: 1 !important;
   font-size: 10.5px !important;
   font-weight: 800 !important;
+  white-space: nowrap !important;
 }
 
 .system-status {
-  padding: 0 10px !important;
+  gap: 7px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
   background: rgba(255,255,255,0.025) !important;
   border: 1px solid rgba(255,255,255,0.07) !important;
   color: #dfe2f1 !important;
@@ -1607,34 +1643,41 @@ tbody tr,
 
 .user-avatar {
   width: auto !important;
-  min-width: auto !important;
+  min-width: 54px !important;
   max-width: 190px !important;
   padding: 0 12px !important;
+  border-radius: 999px !important;
   background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(235,235,245,0.96)) !important;
   color: var(--primary) !important;
   border: 1px solid rgba(255,255,255,0.10) !important;
   box-shadow: 0 7px 16px rgba(0,0,0,0.14) !important;
-  white-space: nowrap !important;
+  cursor: pointer !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   text-transform: uppercase !important;
 }
 
+.user-avatar:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(84,22,219,0.22), 0 7px 16px rgba(0,0,0,0.14) !important;
+}
+
 .admin-trigger {
-  width: 30px !important;
-  min-width: 30px !important;
+  width: 31px !important;
+  min-width: 31px !important;
   padding: 0 !important;
   border-radius: 10px !important;
-  font-size: 14px !important;
-  background: linear-gradient(180deg, rgba(84,22,219,0.23), rgba(84,22,219,0.10)) !important;
-  border: 1px solid rgba(111,70,255,0.26) !important;
+  font-size: 16px !important;
+  background: linear-gradient(180deg, rgba(84,22,219,0.24), rgba(84,22,219,0.10)) !important;
+  border: 1px solid rgba(111,70,255,0.28) !important;
   color: #f5f1ff !important;
   box-shadow: 0 7px 16px rgba(84,22,219,0.12) !important;
 }
 
 .btn-logout {
-  min-width: 64px !important;
-  padding: 0 11px !important;
+  min-width: 72px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
   background: linear-gradient(180deg, #ff5a56, #d32f2f) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255,255,255,0.06) !important;
@@ -1646,7 +1689,9 @@ tbody tr,
   filter: brightness(1.03);
 }
 
-.login-kicker {
+.login-kicker,
+.login-subtext,
+.toast {
   display: none !important;
 }
 
@@ -1654,10 +1699,6 @@ tbody tr,
   text-align: center !important;
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
-}
-
-.toast {
-  display: none !important;
 }
 
 .global-popup {
@@ -1694,232 +1735,51 @@ tbody tr,
   font-size: 11px !important;
 }
 
-
-/* Perfil clickeable para cambiar nombre */
-.user-avatar {
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  cursor: pointer !important;
-}
-
-.user-avatar:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(84,22,219,0.22), 0 7px 16px rgba(0,0,0,0.14) !important;
-}
-
-
-/* =========================================
-   AJUSTE HEADER + LOGO + FAVICON V2
-========================================= */
-
-header {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.header-shell {
-  max-width: 1520px !important;
-  width: calc(100% - 220px) !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  gap: 18px !important;
-}
-
-.brand-block-with-logo {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 12px !important;
-  min-width: 0 !important;
-}
-
-.brand-logo-tab {
-  width: 38px !important;
-  height: 38px !important;
-  object-fit: contain !important;
-  flex: 0 0 38px !important;
-  border-radius: 10px !important;
-  filter: drop-shadow(0 0 10px rgba(84,22,219,0.38)) !important;
-}
-
-.brand-copy {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-
-.top-right {
-  margin-left: auto !important;
-  justify-content: flex-end !important;
-  gap: 6px !important;
-}
-
-.btn-logout {
-  margin-left: 6px !important;
-}
-
 @media (max-width: 1100px) {
   .header-shell {
-    width: calc(100% - 44px) !important;
+    width: min(100% - 44px, 1520px) !important;
+    grid-template-columns: minmax(220px, 1fr) auto auto !important;
   }
 
-  .brand-logo-tab {
-    width: 32px !important;
-    height: 32px !important;
-    flex-basis: 32px !important;
+  .header-logout-zone {
+    margin-left: 22px !important;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
+  header {
+    padding: 14px 0 !important;
+  }
+
   .header-shell {
     width: calc(100% - 28px) !important;
-  }
-
-  .brand-logo-tab {
-    display: none !important;
-  }
-}
-
-
-/* =========================================
-   CORRECCIÓN HEADER FINAL: LOGO COMPLETO + SALIR SEPARADO
-========================================= */
-
-.header-shell {
-  position: relative !important;
-  width: calc(100% - 220px) !important;
-  max-width: 1520px !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-}
-
-.brand-block-with-logo {
-  overflow: visible !important;
-}
-
-.brand-logo-tab {
-  width: 42px !important;
-  height: 42px !important;
-  flex: 0 0 42px !important;
-  object-fit: contain !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  overflow: visible !important;
-  clip-path: none !important;
-  filter: drop-shadow(0 0 8px rgba(84,22,219,0.42)) !important;
-}
-
-.top-right {
-  margin-left: auto !important;
-  margin-right: 98px !important;
-  justify-content: flex-end !important;
-}
-
-.header-logout-fixed {
-  position: absolute !important;
-  right: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  margin-left: 0 !important;
-  z-index: 5 !important;
-}
-
-.header-logout-fixed:hover {
-  transform: translateY(-50%) !important;
-}
-
-@media (max-width: 1100px) {
-  .header-shell {
-    width: calc(100% - 44px) !important;
-  }
-
-  .top-right {
-    margin-right: 86px !important;
-  }
-}
-
-@media (max-width: 700px) {
-  .header-shell {
-    width: calc(100% - 28px) !important;
-  }
-
-  .top-right {
-    margin-right: 76px !important;
+    grid-template-columns: 1fr !important;
+    row-gap: 12px !important;
+    align-items: start !important;
   }
 
   .brand-logo-tab {
     width: 34px !important;
     height: 34px !important;
     flex-basis: 34px !important;
-    display: block !important;
-  }
-}
-
-
-/* =========================================
-   CORRECCIÓN HEADER: SALIR SOLO EN PANEL + SEPARADO
-========================================= */
-
-.header-shell {
-  width: calc(100% - 220px) !important;
-  max-width: 1520px !important;
-  margin: 0 auto !important;
-  position: relative !important;
-}
-
-.brand-logo-tab {
-  width: 42px !important;
-  height: 42px !important;
-  flex: 0 0 42px !important;
-  object-fit: contain !important;
-  object-position: center !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  overflow: visible !important;
-  clip-path: none !important;
-  box-shadow: none !important;
-}
-
-.top-right {
-  margin-left: auto !important;
-  margin-right: 0 !important;
-  display: flex;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 6px !important;
-}
-
-.header-logout-separated {
-  position: static !important;
-  transform: none !important;
-  margin-left: 34px !important;
-}
-
-.header-logout-separated:hover {
-  transform: none !important;
-}
-
-@media (max-width: 1100px) {
-  .header-shell {
-    width: calc(100% - 44px) !important;
   }
 
-  .header-logout-separated {
-    margin-left: 18px !important;
-  }
-}
-
-@media (max-width: 700px) {
-  .header-shell {
-    width: calc(100% - 28px) !important;
+  .top-right {
+    width: 100% !important;
+    justify-content: space-between !important;
   }
 
-  .header-logout-separated {
-    margin-left: 10px !important;
+  .header-actions-group {
+    flex: 1 1 auto !important;
+    justify-content: flex-start !important;
+  }
+
+  .header-logout-zone {
+    margin-left: 12px !important;
+  }
+
+  .user-avatar {
+    max-width: 145px !important;
   }
 }
 
@@ -1938,28 +1798,33 @@ header {
       </div>
 
       <div class="top-right" id="topRight" style="display:none;">
-        <div id="systemStatus" class="system-status">
-          <span class="status-dot"></span>
-          <span id="systemStatusText">Sincronizado</span>
-        </div>
+        <div class="header-actions-group">
+          <div id="systemStatus" class="system-status">
+            <span class="status-dot"></span>
+            <span id="systemStatusText">Sincronizado</span>
+          </div>
 
-        <button type="button" id="userAvatar" class="user-avatar" title="Cambiar nombre" onclick="abrirCambioNombreSimbolico()"></button>
-        <div id="roleIndicator" class="role-indicator" style="display:none;">USER</div>
+          <button type="button" id="userAvatar" class="user-avatar" title="Cambiar nombre" onclick="abrirCambioNombreSimbolico()"></button>
+          <div id="roleIndicator" class="role-indicator" style="display:none;">USER</div>
 
-        <div class="admin-menu" id="adminMenuWrap" style="display:none;">
-          <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">⋮</button>
+          <div class="admin-menu" id="adminMenuWrap" style="display:none;">
+            <button class="admin-trigger" onclick="toggleAdminMenu()" aria-label="Menú de administración" title="Menú">⋮</button>
 
-          <div class="admin-dropdown" id="adminDropdown">
-            <button onclick="abrirModalUsuarios(); cerrarAdminMenu();">Usuarios</button>
-            <button onclick="abrirModalAuditoria(); cerrarAdminMenu();">Auditoría</button>
-            <button onclick="abrirModalHistorial(); cerrarAdminMenu();">Historial</button>
-            <button onclick="descargarPlantillaCSV(); cerrarAdminMenu();">Descargar plantilla CSV</button>
-            <button onclick="abrirSelectorImportacionCSV(); cerrarAdminMenu();">Importar CSV</button>
-            <button onclick="exportarCSV(); cerrarAdminMenu();">Exportar CSV</button>
-            <button onclick="crearRespaldo(); cerrarAdminMenu();">Crear respaldo</button>
+            <div class="admin-dropdown" id="adminDropdown">
+              <button onclick="abrirModalUsuarios(); cerrarAdminMenu();">Usuarios</button>
+              <button onclick="abrirModalAuditoria(); cerrarAdminMenu();">Auditoría</button>
+              <button onclick="abrirModalHistorial(); cerrarAdminMenu();">Historial</button>
+              <button onclick="descargarPlantillaCSV(); cerrarAdminMenu();">Descargar plantilla CSV</button>
+              <button onclick="abrirSelectorImportacionCSV(); cerrarAdminMenu();">Importar CSV</button>
+              <button onclick="exportarCSV(); cerrarAdminMenu();">Exportar CSV</button>
+              <button onclick="crearRespaldo(); cerrarAdminMenu();">Crear respaldo</button>
+            </div>
           </div>
         </div>
-        <button class="btn-logout header-logout-separated" onclick="logout()">Salir</button>
+
+        <div class="header-logout-zone">
+          <button class="btn-logout" onclick="logout()">Salir</button>
+        </div>
       </div>
     </div>
   </header>
@@ -2017,7 +1882,7 @@ header {
         <div class="grid">
           <div>
             <label>Cliente</label>
-            <input type="text" id="cliente" placeholder="Ej: Juan Pérez" list="clientesFrecuentes" tabindex="1">
+            <input type="text" id="cliente" placeholder="Ej: Contribuyente/Empresa" list="clientesFrecuentes" tabindex="1">
 
             <label>Monto ($)</label>
             <input type="text" id="monto" placeholder="Ej: 1,250.00" inputmode="decimal" oninput="formatearInputMonto(this)" onblur="formatearInputMontoBlur(this)" tabindex="2">
@@ -2034,12 +1899,12 @@ header {
 
           <div>
             <label>N° Recibo</label>
-            <input type="text" id="recibo" placeholder="Ej: R-000123" tabindex="5">
+            <input type="text" id="recibo" placeholder="Ej: 419401" tabindex="5">
 
             <label>Fecha recibo</label>
             <input type="date" id="fechaRecibo" tabindex="6">
 
-            <label>ID o Banco</label>
+            <label>Banco o Referencia</label>
             <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno" list="bancosFrecuentes" tabindex="7">
 
             <label>Observaciones / Comentarios</label>
@@ -3099,13 +2964,9 @@ async function obtenerONombreUsuario() {
 
     function obtenerUltimaTransferenciaIngresada(lista) {
       return [...lista].sort((a, b) => {
-        const createdA = String(a?.createdAt || "");
-        const createdB = String(b?.createdAt || "");
-        if (createdA !== createdB) return createdB.localeCompare(createdA);
-
-        const updatedA = String(a?.updatedAt || "");
-        const updatedB = String(b?.updatedAt || "");
-        if (updatedA !== updatedB) return updatedB.localeCompare(updatedA);
+        const creadoA = obtenerTiempoOrdenPrincipal(a) || obtenerTiempoOrdenFallback(a);
+        const creadoB = obtenerTiempoOrdenPrincipal(b) || obtenerTiempoOrdenFallback(b);
+        if (creadoA !== creadoB) return creadoB - creadoA;
 
         return String(b?.id || "").localeCompare(String(a?.id || ""));
       })[0];
@@ -3232,30 +3093,64 @@ async function obtenerONombreUsuario() {
       });
     }
 
-    function obtenerFechaOrden(t) {
-      const fecha = (t?.fecha && /^\d{4}-\d{2}-\d{2}$/.test(t.fecha)) ? t.fecha : "0000-00-00";
-      return fecha;
+    function normalizarEstadoOrden(valor) {
+      const estado = String(valor || "").trim().toLowerCase();
+      return estado === "pendiente" || estado === "no aplicada" || estado === "no aplicado" ? 0 : 1;
     }
 
-    function obtenerCreatedAtOrden(t) {
-      return String(t?.createdAt || "");
+    function obtenerTiempoOrdenPrincipal(t) {
+      const candidatos = [
+        t?.createdAt,
+        t?.creadoFecha,
+        t?.fechaCreacion,
+        t?.creadoEn,
+        t?.created_at,
+        t?.timestamp,
+        t?.fechaRegistro
+      ];
+
+      for (const valor of candidatos) {
+        if (!valor) continue;
+        if (typeof valor.toMillis === "function") return valor.toMillis();
+        if (typeof valor.seconds === "number") return valor.seconds * 1000;
+
+        const tiempo = Date.parse(valor);
+        if (!Number.isNaN(tiempo)) return tiempo;
+      }
+
+      return 0;
+    }
+
+    function obtenerTiempoOrdenFallback(t) {
+      const candidatos = [t?.fechaRecibo, t?.fechaAplicada, t?.fechaAplicacion, t?.fecha, t?.fechaRecibida];
+
+      for (const valor of candidatos) {
+        if (!valor || valor === "No aplica") continue;
+        if (typeof valor.toMillis === "function") return valor.toMillis();
+        if (typeof valor.seconds === "number") return valor.seconds * 1000;
+
+        const tiempo = Date.parse(valor);
+        if (!Number.isNaN(tiempo)) return tiempo;
+      }
+
+      return 0;
     }
 
     function ordenarTransferenciasInteligente(lista) {
       return [...lista].sort((a, b) => {
-        const estadoA = a.estado === "Pendiente" ? 0 : 1;
-        const estadoB = b.estado === "Pendiente" ? 0 : 1;
+        const estadoA = normalizarEstadoOrden(a?.estado);
+        const estadoB = normalizarEstadoOrden(b?.estado);
         if (estadoA !== estadoB) return estadoA - estadoB;
 
-        const fechaA = obtenerFechaOrden(a);
-        const fechaB = obtenerFechaOrden(b);
-        if (fechaA !== fechaB) return fechaB.localeCompare(fechaA);
+        const creadoA = obtenerTiempoOrdenPrincipal(a);
+        const creadoB = obtenerTiempoOrdenPrincipal(b);
+        if (creadoA !== creadoB) return creadoB - creadoA;
 
-        const createdA = obtenerCreatedAtOrden(a);
-        const createdB = obtenerCreatedAtOrden(b);
-        if (createdA !== createdB) return createdB.localeCompare(createdA);
+        const respaldoA = obtenerTiempoOrdenFallback(a);
+        const respaldoB = obtenerTiempoOrdenFallback(b);
+        if (respaldoA !== respaldoB) return respaldoB - respaldoA;
 
-        return String(b.id || "").localeCompare(String(a.id || ""));
+        return String(b?.id || "").localeCompare(String(a?.id || ""));
       });
     }
 
@@ -4353,7 +4248,7 @@ async function obtenerONombreUsuario() {
       const filtroMes = document.getElementById("filtroMes").value;
       const filtroAnio = document.getElementById("filtroAnio").value;
 
-      return transferencias.filter(t => {
+      return ordenarTransferenciasInteligente(transferencias.filter(t => {
         const coincideBusqueda =
           !filtro ||
           String(t.cliente || "").toLowerCase().includes(filtro) ||
@@ -4379,7 +4274,7 @@ async function obtenerONombreUsuario() {
         if (filtroAnio && anio !== filtroAnio) return false;
         if (filtroMes && mes !== filtroMes) return false;
         return true;
-      });
+      }));
     }
 
     function actualizarPaginacion(total) {
