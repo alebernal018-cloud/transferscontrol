@@ -1783,6 +1783,212 @@ header {
   }
 }
 
+
+
+/* =========================================
+   HEADER PREMIUM FINAL — REFERENCIA VISUAL
+   Mantiene funciones, solo perfecciona estructura visual.
+========================================= */
+header {
+  min-height: 118px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  background: #0a0a10 !important;
+  border-bottom: 1px solid rgba(84,22,219,0.45) !important;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.28) !important;
+}
+
+header::after {
+  height: 1px !important;
+  background: linear-gradient(90deg, rgba(84,22,219,0), rgba(84,22,219,0.85), rgba(84,22,219,0)) !important;
+  opacity: 0.75 !important;
+}
+
+.header-shell {
+  width: min(1530px, calc(100% - 150px)) !important;
+  max-width: 1530px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(420px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 28px !important;
+}
+
+.brand-block-with-logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  min-width: 0 !important;
+}
+
+.brand-logo-tab {
+  width: 58px !important;
+  height: 58px !important;
+  flex: 0 0 58px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 0 12px rgba(84,22,219,0.55)) !important;
+}
+
+.brand-copy {
+  min-width: 0 !important;
+}
+
+.brand-title {
+  font-size: 25px !important;
+  line-height: 1.05 !important;
+  letter-spacing: 1.25px !important;
+  font-weight: 800 !important;
+  color: #f8f8ff !important;
+  white-space: nowrap !important;
+}
+
+.brand-subtitle {
+  margin-top: 4px !important;
+  font-size: 13px !important;
+  letter-spacing: 0.25px !important;
+  color: #aeb3c9 !important;
+}
+
+.top-right {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.header-actions-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+.header-logout-zone {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  margin-left: 36px !important;
+  padding-left: 0 !important;
+}
+
+.system-status,
+.user-avatar,
+.admin-trigger,
+.btn-logout {
+  height: 36px !important;
+  min-height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.15px !important;
+  white-space: nowrap !important;
+}
+
+.system-status {
+  gap: 8px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  background: #11111a !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: #e0e3f0 !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.20) !important;
+}
+
+.status-dot {
+  width: 7px !important;
+  height: 7px !important;
+  background: #47c266 !important;
+  box-shadow: 0 0 10px rgba(71,194,102,0.45) !important;
+}
+
+.user-avatar {
+  min-width: 124px !important;
+  max-width: 210px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #ffffff, #e7e4f5) !important;
+  color: #5416DB !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: 0 13px 26px rgba(0,0,0,0.28) !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-transform: uppercase !important;
+}
+
+.admin-trigger {
+  width: 36px !important;
+  min-width: 36px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  font-size: 18px !important;
+  background: linear-gradient(180deg, rgba(84,22,219,0.46), rgba(44,16,105,0.88)) !important;
+  color: #f5f1ff !important;
+  border: 1px solid rgba(111,70,255,0.38) !important;
+  box-shadow: 0 16px 34px rgba(84,22,219,0.22) !important;
+}
+
+.btn-logout {
+  min-width: 82px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #ff5d5c, #e13a3c) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 16px 30px rgba(225,58,60,0.26) !important;
+}
+
+.admin-dropdown {
+  top: calc(100% + 12px) !important;
+  right: 0 !important;
+}
+
+@media (max-width: 1250px) {
+  .header-shell {
+    width: min(100% - 70px, 1530px) !important;
+    grid-template-columns: minmax(330px, 1fr) auto !important;
+  }
+  .brand-title { font-size: 21px !important; }
+  .brand-logo-tab { width: 48px !important; height: 48px !important; flex-basis: 48px !important; }
+  .header-logout-zone { margin-left: 22px !important; }
+}
+
+@media (max-width: 860px) {
+  header { min-height: auto !important; padding: 16px 0 !important; }
+  .header-shell {
+    width: calc(100% - 30px) !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .brand-title { font-size: 18px !important; white-space: normal !important; }
+  .brand-subtitle { font-size: 11px !important; }
+  .brand-logo-tab { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
+  .top-right { width: 100% !important; justify-content: space-between !important; }
+  .header-actions-group { gap: 8px !important; justify-content: flex-start !important; }
+  .header-logout-zone { margin-left: 12px !important; }
+  .user-avatar { min-width: 0 !important; max-width: 150px !important; padding: 0 12px !important; }
+  .system-status { padding: 0 11px !important; }
+}
+
+@media (max-width: 520px) {
+  .header-actions-group { flex-wrap: wrap !important; }
+  .system-status, .user-avatar, .admin-trigger, .btn-logout { height: 34px !important; min-height: 34px !important; }
+  .btn-logout { min-width: 74px !important; padding: 0 14px !important; }
+}
+
 </style>
 </head>
 
@@ -1899,16 +2105,16 @@ header {
 
           <div>
             <label>N° Recibo</label>
-            <input type="text" id="recibo" placeholder="Ej: 419401" tabindex="5">
+            <input type="text" id="recibo" placeholder="Ej: 000000" tabindex="5">
 
             <label>Fecha recibo</label>
             <input type="date" id="fechaRecibo" tabindex="6">
 
-            <label>Banco o Referencia</label>
-            <input type="text" id="banco" placeholder="Ej: BAC / Agrícola / ID interno" list="bancosFrecuentes" tabindex="7">
+            <label>ID o Banco</label>
+            <input type="text" id="banco" placeholder="Ej: PROMERICA/DAVIVIENDA O REFERENCIA" list="bancosFrecuentes" tabindex="7">
 
             <label>Observaciones / Comentarios</label>
-            <textarea id="comentarios" placeholder="Ej: nota de abono pendiente, revisar recibo, etc." tabindex="8"></textarea>
+            <textarea id="comentarios" placeholder="Ej: Nota de abono pendiente, Revisar recibo, etc." tabindex="8"></textarea>
           </div>
         </div>
 
