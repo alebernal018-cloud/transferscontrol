@@ -6,11 +6,11 @@
   <title>Transfers Control</title>
 
   <!-- FAVICON -->
-  <link rel="icon" type="image/png" sizes="32x32" href="new%20ace%20TRANSFER.png?v=3">
-  <link rel="icon" type="image/png" sizes="64x64" href="new%20ace%20TRANSFER.png?v=3">
-  <link rel="icon" type="image/png" sizes="192x192" href="new%20ace%20TRANSFER.png?v=3">
-  <link rel="apple-touch-icon" sizes="180x180" href="new%20ace%20TRANSFER.png?v=3">
-  <link rel="shortcut icon" href="new%20ace%20TRANSFER.png?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="new%20ace%20TRANSFERv2.png?v=4">
+  <link rel="icon" type="image/png" sizes="64x64" href="new%20ace%20TRANSFERv2.png?v=4">
+  <link rel="icon" type="image/png" sizes="192x192" href="new%20ace%20TRANSFERv2.png?v=4">
+  <link rel="apple-touch-icon" sizes="180x180" href="new%20ace%20TRANSFERv2.png?v=4">
+  <link rel="shortcut icon" href="new%20ace%20TRANSFERv2.png?v=4">
 
 
 <meta name="theme-color" content="#5416DB">
@@ -2234,11 +2234,15 @@ tbody tr,
         t.created_at,
         t.timestamp,
         t.fechaRegistro,
+        t.created,
+        t.creado,
+        t.ultimaActividad,
         t.updatedAt
       ];
 
       for (const valor of candidatos) {
         if (!valor) continue;
+
         if (typeof valor.toMillis === "function") return valor.toMillis();
         if (typeof valor.seconds === "number") return valor.seconds * 1000;
 
@@ -2250,21 +2254,27 @@ tbody tr,
     }
 
     function prioridadEstado(t) {
-      return String(t.estado || "").toLowerCase() === "pendiente" ? 0 : 1;
+      const estado = String(t.estado || "").trim().toLowerCase();
+      return estado === "pendiente" || estado === "no aplicada" || estado === "no aplicado" ? 0 : 1;
     }
 
     function ordenarTransferenciasVista(lista) {
       return [...lista].sort((a, b) => {
-        const estadoA = prioridadEstado(a);
-        const estadoB = prioridadEstado(b);
+        const prioridadA = prioridadEstado(a);
+        const prioridadB = prioridadEstado(b);
 
-        if (estadoA !== estadoB) return estadoA - estadoB;
+        // 1) Pendientes / no aplicadas siempre arriba.
+        if (prioridadA !== prioridadB) return prioridadA - prioridadB;
 
-        const tiempoB = obtenerTiempoRegistro(b);
-        const tiempoA = obtenerTiempoRegistro(a);
+        // 2) Dentro de cada grupo, ordenar por momento de registro:
+        // últimas registradas arriba, más antiguas abajo.
+        const registroB = obtenerTiempoRegistro(b);
+        const registroA = obtenerTiempoRegistro(a);
 
-        if (tiempoB !== tiempoA) return tiempoB - tiempoA;
+        if (registroB !== registroA) return registroB - registroA;
 
+        // 3) Respaldo si algún registro antiguo no tiene createdAt:
+        // usa fecha recibida descendente.
         const fechaB = Date.parse(b.fecha || "") || 0;
         const fechaA = Date.parse(a.fecha || "") || 0;
 
